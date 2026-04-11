@@ -14,9 +14,9 @@ function ChatHistory({ messages, streamingMessage }: ChatHistoryProps) {
   useEffect(() => {
     endRef.current?.scrollIntoView({ block: "end" })
   }, [messages, streamingMessage])
-
+  // console.log("Rendering ChatHistory with messages:", messages, "and streamingMessage:", streamingMessage)
   return (
-    <div className="mx-auto flex w-full max-w-4xl flex-col gap-4 py-2">
+    <div className="mx-auto flex w-full max-w-4xl flex-col gap-4 py-2 mt-6">
       {messages.map((message, i) => (
         <Message key={i} message={message} />
       ))}

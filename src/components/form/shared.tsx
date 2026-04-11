@@ -9,7 +9,6 @@ import {
   ComboboxItem,
   ComboboxList,
 } from "#/components/ui/combobox"
-import { IconComponent } from "../icon";
 import { InputGroup, InputGroupAddon, InputGroupText, InputGroupTextarea } from "../ui/input-group";
 interface InputFieldProps {
   label: string;
@@ -79,7 +78,7 @@ function TextAreaField({
         />
         <InputGroupAddon align="block-end">
           <InputGroupText className="tabular-nums">
-            {(field.state.value ?? "").length}/{maxCharacters} karakters
+            {(field.state.value ?? "").length}/{maxCharacters} Characters
           </InputGroupText>
         </InputGroupAddon>
       </InputGroup>
@@ -123,34 +122,4 @@ function ComboboxField({ label, placeholder, empty, options }: ComboboxFieldProp
   );
 }
 
-function ComboBoxFieldIcons({ label, placeholder, empty, options }: ComboboxFieldProps) {
- const field = useFieldContext<string | undefined>();
-  const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
-  return (
-    <Field data-invalid={isInvalid}>
-      <FieldLabel htmlFor={field.name}>{label}</FieldLabel>
-      <Combobox
-        items={options}
-        value={field.state.value ?? ""}
-        onValueChange={(value) => field.handleChange(value || undefined)}
-      >
-        <ComboboxInput placeholder={placeholder} />
-        <ComboboxContent>
-            <ComboboxEmpty>{ empty }</ComboboxEmpty>
-          <ComboboxList>
-            {(item) => (
-              <ComboboxItem key={item.value} value={item.value}>
-                <IconComponent iconName={item.value} />
-                <span>
-                  {item.label}
-                </span>
-              </ComboboxItem>
-            )}
-          </ComboboxList>
-        </ComboboxContent>
-      </Combobox>
-      {isInvalid && <FieldError errors={field.state.meta.errors} />}
-    </Field>
-  );
-}
-export { InputField, TextAreaField, ComboboxField, ComboBoxFieldIcons };
+export { InputField, TextAreaField, ComboboxField };

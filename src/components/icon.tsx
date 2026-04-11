@@ -1,13 +1,41 @@
 import { CircleQuestionMark } from "lucide-react"
-import { DynamicIcon, type IconName } from "lucide-react/dynamic"
+// import { DynamicIcon, iconNames, type IconName } from "lucide-react/dynamic"
 
+// const LUCIDE_ICON_NAME_SET = new Set(iconNames)
 
-
-function IconComponent({ iconName, color, fallBackIcon }: { iconName: string, color?: string, fallBackIcon?: React.ReactNode }) { 
+function IconComponent({
+  iconName,
+  color,
+  fallBackIcon,
+  className,
+}: {
+  iconName: string
+  color?: string
+  fallBackIcon?: React.ReactNode
+  className?: string
+}) {
   if (!iconName) {
     return fallBackIcon ?? <CircleQuestionMark />
   }
-  return <DynamicIcon name={iconName as IconName} color={color} />
+
+  // if (!LUCIDE_ICON_NAME_SET.has(iconName as IconName)) {
+  //   return (
+  //     <span
+  //       className="inline-flex items-center text-destructive [&_svg]:text-destructive"
+  //       title={`Invalid icon: ${iconName}`}
+  //     >
+  //       {fallBackIcon ?? <CircleQuestionMark className={className} />}
+  //     </span>
+  //   )
+  // }
+  // return (
+  //   <DynamicIcon
+  //     name={iconName as IconName}
+  //     color={color}
+  //     className={className}
+  //   />
+  // )
+  return <CircleQuestionMark className={className} color={color} />
 }
 
 export { IconComponent }

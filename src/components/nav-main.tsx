@@ -4,6 +4,8 @@ import {
   SidebarGroup,
   SidebarGroupLabel,
   SidebarMenu,
+  SidebarMenuAction,
+  SidebarMenuBadge,
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarMenuSub,
@@ -15,29 +17,45 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "#/components/ui/collapsible"
+import { useState } from "react"
 import { Link } from "@tanstack/react-router"
-import { Bot, ChevronRightIcon, PackagePlus, Pencil } from "lucide-react"
+import {
+  Bot,
+  ChevronDown,
+  ChevronRightIcon,
+  ChevronUp,
+  PackagePlus,
+  Pencil,
+  ScrollText,
+  Wrench,
+} from "lucide-react"
 import type { Agent } from "@chat-gipity/schemas"
 import { IconComponent } from "./icon"
 
 type AgentWithId = Agent & { id: string }
 
 export function NavMain({ agents }: { agents: AgentWithId[] }) {
+  const [showAllAgents, setShowAllAgents] = useState(false)
+  const hasMoreAgents = agents.length > 5
+  const visibleAgents = showAllAgents ? agents : agents.slice(0, 5)
+
   return (
     <>
-      <SidebarMenu>
-        <SidebarMenuItem>
-          <SidebarMenuButton asChild tooltip="New Chat">
-            <Link to="/">
-              <Pencil />
-              New Chat
-            </Link>
-          </SidebarMenuButton>
-        </SidebarMenuItem>
-      </SidebarMenu>
+      <SidebarGroup>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton asChild tooltip="New Chat">
+              <Link to="/">
+                <Pencil />
+                New Chat
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarGroup>
       <SidebarGroup>
         <SidebarGroupLabel>Manage Agents</SidebarGroupLabel>
-          <SidebarMenuItem>
+        <SidebarMenuItem>
           <SidebarMenuButton asChild tooltip="New Agent">
             <Link to="/agent/create">
               <PackagePlus />
@@ -45,36 +63,80 @@ export function NavMain({ agents }: { agents: AgentWithId[] }) {
             </Link>
           </SidebarMenuButton>
         </SidebarMenuItem>
-        <Collapsible
-            asChild
-            // defaultOpen={item.isActive}
-            className="group/collapsible"
-            >
-            <SidebarMenuItem>
-              <CollapsibleTrigger asChild>
-                <SidebarMenuButton tooltip="Agents">
-                  <Bot />
-                  <span>Agents</span>
-                  <ChevronRightIcon className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
-                </SidebarMenuButton>
-              </CollapsibleTrigger>
-              <CollapsibleContent>
-                <SidebarMenuSub>
-                  {agents.map((agent) => (
-                    <SidebarMenuSubItem key={agent.id}>
-                      <SidebarMenuSubButton asChild>
-                        <Link to="/agent/$id" params={{ id: agent.id }}>
-                          <IconComponent iconName={agent.icon || ''} color={agent.color} fallBackIcon={<Bot />} />
-                          <span>{agent.name}</span>
-                        </Link>
-                      </SidebarMenuSubButton>
-                    </SidebarMenuSubItem>
-                  ))}
-                </SidebarMenuSub>
-              </CollapsibleContent>
-            </SidebarMenuItem>
-          </Collapsible>
-        </SidebarGroup>
+        <Collapsible asChild className="group/collapsible">
+          <SidebarMenuItem>
+            <CollapsibleTrigger asChild>
+              <SidebarMenuButton tooltip="Agents">
+                <Bot />
+                <span>Agents</span>
+                <ChevronRightIcon className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+              </SidebarMenuButton>
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+              <SidebarMenuSub>
+                {visibleAgents.map((agent) => (
+                  <SidebarMenuSubItem key={agent.id}>
+                    <SidebarMenuSubButton asChild>
+                      <Link to="/agent/$id" params={{ id: agent.id }}>
+                        <IconComponent
+                          iconName={agent.icon || ""}
+                          color={agent.color}
+                          fallBackIcon={<Bot className="size-4" />}
+                        />
+                        <span>{agent.name}</span>
+                      </Link>
+                    </SidebarMenuSubButton>
+                  </SidebarMenuSubItem>
+                ))}
+                {hasMoreAgents && (
+                  <SidebarMenuSubItem>
+                    <SidebarMenuSubButton asChild>
+                      <button
+                        type="button"
+                        onClick={() => setShowAllAgents((prev) => !prev)}
+                      >
+                        {showAllAgents ? <ChevronUp /> : <ChevronDown />}
+                        <span>
+                          {showAllAgents
+                            ? "Less"
+                            : `More (${agents.length - 5})`}
+                        </span>
+                      </button>
+                    </SidebarMenuSubButton>
+                  </SidebarMenuSubItem>
+                )}
+              </SidebarMenuSub>
+            </CollapsibleContent>
+          </SidebarMenuItem>
+        </Collapsible>
+        <SidebarMenuItem>
+          <SidebarMenuButton asChild tooltip="Tools">
+            <Link to="/skill">
+              <ScrollText />
+              Skills
+              <SidebarMenuBadge>New</SidebarMenuBadge>
+            </Link>
+          </SidebarMenuButton>
+          <SidebarMenuSub>
+            <SidebarMenuSubItem>
+              <SidebarMenuSubButton asChild>
+                <Link to="/skill/create">
+                  <PackagePlus />
+                  New Skill
+                </Link>
+              </SidebarMenuSubButton>
+            </SidebarMenuSubItem>
+          </SidebarMenuSub>
+        </SidebarMenuItem>
+        <SidebarMenuItem>
+          <SidebarMenuButton asChild tooltip="Tools">
+            <Link to="/tools">
+              <Wrench />
+              Tools
+            </Link>
+          </SidebarMenuButton>
+        </SidebarMenuItem>
+      </SidebarGroup>
     </>
   )
 }

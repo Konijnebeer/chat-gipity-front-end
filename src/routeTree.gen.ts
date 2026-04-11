@@ -10,7 +10,11 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ToolsIndexRouteImport } from './routes/tools/index'
+import { Route as SkillIndexRouteImport } from './routes/skill/index'
+import { Route as ChatIndexRouteImport } from './routes/chat/index'
 import { Route as AgentIndexRouteImport } from './routes/agent/index'
+import { Route as SkillCreateRouteImport } from './routes/skill/create'
 import { Route as ChatIdRouteImport } from './routes/chat/$id'
 import { Route as AgentEditRouteImport } from './routes/agent/edit'
 import { Route as AgentCreateRouteImport } from './routes/agent/create'
@@ -18,15 +22,36 @@ import { Route as AgentIdRouteImport } from './routes/agent/$id'
 import { Route as authRegisterRouteImport } from './routes/(auth)/register'
 import { Route as authLogoutRouteImport } from './routes/(auth)/logout'
 import { Route as authLoginRouteImport } from './routes/(auth)/login'
+import { Route as authAccountRouteImport } from './routes/(auth)/account'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ToolsIndexRoute = ToolsIndexRouteImport.update({
+  id: '/tools/',
+  path: '/tools/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SkillIndexRoute = SkillIndexRouteImport.update({
+  id: '/skill/',
+  path: '/skill/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ChatIndexRoute = ChatIndexRouteImport.update({
+  id: '/chat/',
+  path: '/chat/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AgentIndexRoute = AgentIndexRouteImport.update({
   id: '/agent/',
   path: '/agent/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SkillCreateRoute = SkillCreateRouteImport.update({
+  id: '/skill/create',
+  path: '/skill/create',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ChatIdRoute = ChatIdRouteImport.update({
@@ -64,9 +89,15 @@ const authLoginRoute = authLoginRouteImport.update({
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
+const authAccountRoute = authAccountRouteImport.update({
+  id: '/(auth)/account',
+  path: '/account',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/account': typeof authAccountRoute
   '/login': typeof authLoginRoute
   '/logout': typeof authLogoutRoute
   '/register': typeof authRegisterRoute
@@ -74,10 +105,15 @@ export interface FileRoutesByFullPath {
   '/agent/create': typeof AgentCreateRoute
   '/agent/edit': typeof AgentEditRoute
   '/chat/$id': typeof ChatIdRoute
+  '/skill/create': typeof SkillCreateRoute
   '/agent/': typeof AgentIndexRoute
+  '/chat/': typeof ChatIndexRoute
+  '/skill/': typeof SkillIndexRoute
+  '/tools/': typeof ToolsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/account': typeof authAccountRoute
   '/login': typeof authLoginRoute
   '/logout': typeof authLogoutRoute
   '/register': typeof authRegisterRoute
@@ -85,11 +121,16 @@ export interface FileRoutesByTo {
   '/agent/create': typeof AgentCreateRoute
   '/agent/edit': typeof AgentEditRoute
   '/chat/$id': typeof ChatIdRoute
+  '/skill/create': typeof SkillCreateRoute
   '/agent': typeof AgentIndexRoute
+  '/chat': typeof ChatIndexRoute
+  '/skill': typeof SkillIndexRoute
+  '/tools': typeof ToolsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/(auth)/account': typeof authAccountRoute
   '/(auth)/login': typeof authLoginRoute
   '/(auth)/logout': typeof authLogoutRoute
   '/(auth)/register': typeof authRegisterRoute
@@ -97,12 +138,17 @@ export interface FileRoutesById {
   '/agent/create': typeof AgentCreateRoute
   '/agent/edit': typeof AgentEditRoute
   '/chat/$id': typeof ChatIdRoute
+  '/skill/create': typeof SkillCreateRoute
   '/agent/': typeof AgentIndexRoute
+  '/chat/': typeof ChatIndexRoute
+  '/skill/': typeof SkillIndexRoute
+  '/tools/': typeof ToolsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/account'
     | '/login'
     | '/logout'
     | '/register'
@@ -110,10 +156,15 @@ export interface FileRouteTypes {
     | '/agent/create'
     | '/agent/edit'
     | '/chat/$id'
+    | '/skill/create'
     | '/agent/'
+    | '/chat/'
+    | '/skill/'
+    | '/tools/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/account'
     | '/login'
     | '/logout'
     | '/register'
@@ -121,10 +172,15 @@ export interface FileRouteTypes {
     | '/agent/create'
     | '/agent/edit'
     | '/chat/$id'
+    | '/skill/create'
     | '/agent'
+    | '/chat'
+    | '/skill'
+    | '/tools'
   id:
     | '__root__'
     | '/'
+    | '/(auth)/account'
     | '/(auth)/login'
     | '/(auth)/logout'
     | '/(auth)/register'
@@ -132,11 +188,16 @@ export interface FileRouteTypes {
     | '/agent/create'
     | '/agent/edit'
     | '/chat/$id'
+    | '/skill/create'
     | '/agent/'
+    | '/chat/'
+    | '/skill/'
+    | '/tools/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  authAccountRoute: typeof authAccountRoute
   authLoginRoute: typeof authLoginRoute
   authLogoutRoute: typeof authLogoutRoute
   authRegisterRoute: typeof authRegisterRoute
@@ -144,7 +205,11 @@ export interface RootRouteChildren {
   AgentCreateRoute: typeof AgentCreateRoute
   AgentEditRoute: typeof AgentEditRoute
   ChatIdRoute: typeof ChatIdRoute
+  SkillCreateRoute: typeof SkillCreateRoute
   AgentIndexRoute: typeof AgentIndexRoute
+  ChatIndexRoute: typeof ChatIndexRoute
+  SkillIndexRoute: typeof SkillIndexRoute
+  ToolsIndexRoute: typeof ToolsIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -156,11 +221,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/tools/': {
+      id: '/tools/'
+      path: '/tools'
+      fullPath: '/tools/'
+      preLoaderRoute: typeof ToolsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/skill/': {
+      id: '/skill/'
+      path: '/skill'
+      fullPath: '/skill/'
+      preLoaderRoute: typeof SkillIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/chat/': {
+      id: '/chat/'
+      path: '/chat'
+      fullPath: '/chat/'
+      preLoaderRoute: typeof ChatIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/agent/': {
       id: '/agent/'
       path: '/agent'
       fullPath: '/agent/'
       preLoaderRoute: typeof AgentIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/skill/create': {
+      id: '/skill/create'
+      path: '/skill/create'
+      fullPath: '/skill/create'
+      preLoaderRoute: typeof SkillCreateRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/chat/$id': {
@@ -212,11 +305,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof authLoginRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/(auth)/account': {
+      id: '/(auth)/account'
+      path: '/account'
+      fullPath: '/account'
+      preLoaderRoute: typeof authAccountRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  authAccountRoute: authAccountRoute,
   authLoginRoute: authLoginRoute,
   authLogoutRoute: authLogoutRoute,
   authRegisterRoute: authRegisterRoute,
@@ -224,7 +325,11 @@ const rootRouteChildren: RootRouteChildren = {
   AgentCreateRoute: AgentCreateRoute,
   AgentEditRoute: AgentEditRoute,
   ChatIdRoute: ChatIdRoute,
+  SkillCreateRoute: SkillCreateRoute,
   AgentIndexRoute: AgentIndexRoute,
+  ChatIndexRoute: ChatIndexRoute,
+  SkillIndexRoute: SkillIndexRoute,
+  ToolsIndexRoute: ToolsIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -1,17 +1,39 @@
 import { createFileRoute } from "@tanstack/react-router"
-import { useCallback, useEffect, useRef, useState } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
-import { useAgentsQuery } from "#/hooks/agents.query"
+import { IconComponent } from "#/components/icon"
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarGroup,
+  AvatarGroupCount,
+} from "#/components/ui/avatar"
+import { useAgentsQuery } from "#/hooks/query/agents.query"
+import { useBreadcrumbContext } from "#/hooks/breadcrumb.context"
 import { usePromptForm } from "#/hooks/prompt.form"
 import { FieldGroup } from "#/components/ui/field"
 import { toast } from "sonner"
 import { ChatHistory, ChatHistorySkeleton } from "./-components/history"
 import {
   MessageRequestSchema,
+  type AgentResponse,
   type MessageResponse,
 } from "@chat-gipity/schemas"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "#/components/ui/tooltip"
+import { fetchWithAuth } from "#/lib/api"
 
 export const Route = createFileRoute("/chat/$id")({
+  head: () => ({
+    meta: [
+      {
+        title: "Chat Gipity | Chat",
+      },
+    ],
+  }),
   component: RouteComponent,
 })
 
@@ -23,15 +45,19 @@ function useChat(id: string) {
   const historyQuery = useQuery({
     queryKey: ["chatHistory", id],
     queryFn: async () => {
-      const response = await fetch(`/api/chat/${id}`)
+      const response = await fetchWithAuth(`/api/chat/${id}`)
       if (!response.ok) {
         throw new Error(
           `Failed to fetch chat history with status ${response.status}`
         )
       }
 
-      const data = (await response.json()) as { messages: MessageResponse[] }
-      return data.messages
+      const data = (await response.json()) as {
+        name?: string
+        agents?: AgentResponse[]
+        messages: MessageResponse[]
+      }
+      return data
     },
   })
 
@@ -149,10 +175,27 @@ function useChat(id: string) {
 
 function RouteComponent() {
   const { id } = Route.useParams()
+  const { setEntity, clearEntity, setHeaderRight, clearHeaderRight } =
+    useBreadcrumbContext()
   const { historyQuery, streamingMessage, sendMessage, stopStreaming } =
     useChat(id)
   const agentsQuery = useAgentsQuery()
   const agents = agentsQuery.data ?? []
+
+  const currentChatAgents = historyQuery.data?.agents ?? []
+  const headerKey = useMemo(
+    () =>
+      `chat-agents:${id}:${currentChatAgents.map((agent) => agent.id).join(",")}`,
+    [currentChatAgents, id]
+  )
+
+  const headerAgentsNode = useMemo(() => {
+    if (!currentChatAgents.length) {
+      return null
+    }
+
+    return <ChatHeaderAgents agents={currentChatAgents} />
+  }, [currentChatAgents])
 
   const chatForm = usePromptForm({
     defaultValues: {
@@ -182,6 +225,35 @@ function RouteComponent() {
     }
   }, [id, sendMessage])
 
+  useEffect(() => {
+    if (historyQuery.data?.name) {
+      setEntity({
+        type: "chat",
+        id,
+        name: historyQuery.data.name,
+      })
+    }
+
+    return () => {
+      clearEntity("chat")
+    }
+  }, [clearEntity, historyQuery.data?.name, id, setEntity])
+
+  useEffect(() => {
+    if (!headerAgentsNode) {
+      return
+    }
+
+    setHeaderRight({
+      key: headerKey,
+      node: headerAgentsNode,
+    })
+
+    return () => {
+      clearHeaderRight(headerKey)
+    }
+  }, [clearHeaderRight, headerAgentsNode, headerKey, setHeaderRight])
+
   const isPending = chatForm.state.isSubmitting || streamingMessage !== null
 
   return (
@@ -195,7 +267,7 @@ function RouteComponent() {
         )}
         {historyQuery.data && (
           <ChatHistory
-            messages={historyQuery.data}
+            messages={historyQuery.data.messages}
             streamingMessage={streamingMessage}
           />
         )}
@@ -227,5 +299,43 @@ function RouteComponent() {
         </FieldGroup>
       </form>
     </main>
+  )
+}
+
+export function ChatHeaderAgents({ agents }: { agents: AgentResponse[] }) {
+  const maxVisibleAgents = 4
+  const visibleAgents = agents.slice(0, maxVisibleAgents)
+  const hiddenCount = Math.max(0, agents.length - maxVisibleAgents)
+
+  return (
+    <div className="hidden items-center gap-2 sm:flex">
+      <AvatarGroup>
+        {visibleAgents.map((agent) => (
+          <Tooltip key={agent.id}>
+            <TooltipTrigger>
+              <Avatar key={agent.id} className="ring-2 ring-sidebar">
+                <AvatarFallback
+                  style={
+                    agent.color
+                      ? {
+                          borderColor: agent.color,
+                        }
+                      : undefined
+                  }
+                >
+                  <IconComponent
+                    iconName={agent.icon || ""}
+                    color={agent.color}
+                    className="size-4"
+                  />
+                </AvatarFallback>
+              </Avatar>
+            </TooltipTrigger>
+            <TooltipContent>{agent.name}</TooltipContent>
+          </Tooltip>
+        ))}
+        {hiddenCount > 0 && <AvatarGroupCount>+{hiddenCount}</AvatarGroupCount>}
+      </AvatarGroup>
+    </div>
   )
 }

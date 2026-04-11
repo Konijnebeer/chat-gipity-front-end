@@ -19,12 +19,21 @@ import {
   CardTitle,
 } from "#/components/ui/card"
 import { Skeleton } from "#/components/ui/skeleton"
+import { useBreadcrumbContext } from "#/hooks/breadcrumb.context"
 import type { AgentResponse } from "@chat-gipity/schemas"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
+import { useEffect } from "react"
 import { toast } from "sonner"
 
-export const Route = createFileRoute('/agent/$id')({
+export const Route = createFileRoute("/agent/$id")({
+  head: () => ({
+    meta: [
+      {
+        title: "Chat Gipity | Agent Details",
+      },
+    ],
+  }),
   component: RouteComponent,
 })
 
@@ -32,6 +41,7 @@ function RouteComponent() {
   const { id } = Route.useParams()
   const navigate = useNavigate()
   const queryClient = useQueryClient()
+  const { setEntity, clearEntity } = useBreadcrumbContext()
 
   const deleteAgentMutation = useMutation({
     mutationFn: async () => {
@@ -66,6 +76,20 @@ function RouteComponent() {
       return data
     },
   })
+
+  useEffect(() => {
+    if (agentDetailsQuery.data?.name) {
+      setEntity({
+        type: "agent",
+        id,
+        name: agentDetailsQuery.data.name,
+      })
+    }
+
+    return () => {
+      clearEntity("agent")
+    }
+  }, [agentDetailsQuery.data?.name, clearEntity, id, setEntity])
 
   if (agentDetailsQuery.isLoading) {
     return (

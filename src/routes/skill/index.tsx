@@ -1,16 +1,15 @@
-import { createFileRoute, Link } from "@tanstack/react-router"
-
-import { IconComponent } from "#/components/icon"
+import { createFileRoute } from "@tanstack/react-router"
 import { Card, CardContent } from "#/components/ui/card"
 import { Skeleton } from "#/components/ui/skeleton"
-import { useAgentsQuery } from "#/hooks/query/agents.query"
-import { AlertTriangle, Bot } from "lucide-react"
+import { useSkillsQuery } from "#/hooks/query/skills.query"
+import { AlertTriangle, Wrench } from "lucide-react"
+import { IconComponent } from "#/components/icon"
 
-export const Route = createFileRoute("/agent/")({
+export const Route = createFileRoute("/skill/")({
   head: () => ({
     meta: [
       {
-        title: "Chat Gipity | Agents",
+        title: "Chat Gipity | Skills",
       },
     ],
   }),
@@ -18,15 +17,15 @@ export const Route = createFileRoute("/agent/")({
 })
 
 function RouteComponent() {
-  const agentsQuery = useAgentsQuery()
-  const agents = agentsQuery.data ?? []
+  const skillsQuery = useSkillsQuery()
+  const skills = skillsQuery.data ?? []
 
-  if (agentsQuery.isPending) {
+  if (skillsQuery.isPending) {
     return (
       <main className="mx-auto w-full max-w-6xl px-4 py-10">
         <div className="grid auto-rows-fr grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {Array.from({ length: 6 }).map((_, index) => (
-            <Card key={index} className="h-full min-h-60 gap-0 py-0">
+            <Card key={index} className="h-full min-h-30 gap-0 py-0">
               <CardContent className="space-y-4 py-5">
                 <div className="flex items-center gap-3">
                   <Skeleton className="size-10 rounded-xl" />
@@ -44,7 +43,7 @@ function RouteComponent() {
     )
   }
 
-  if (agentsQuery.isError) {
+  if (skillsQuery.isError) {
     return (
       <main className="mx-auto w-full max-w-6xl px-4 py-10">
         <div className="grid auto-rows-fr grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -57,7 +56,7 @@ function RouteComponent() {
                 <h2 className="text-base font-semibold">Error</h2>
               </div>
               <p className="text-sm">
-                Failed to load agents. Please try again.
+                Failed to load skills. Please try again.
               </p>
             </CardContent>
           </Card>
@@ -69,43 +68,24 @@ function RouteComponent() {
   return (
     <main className="mx-auto w-full max-w-6xl px-4 py-10">
       <div className="grid auto-rows-fr grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {agents.map((agent) => {
-          const color = agent.color || "#64748b"
-
+        {skills.map((skill) => {
           return (
-            <Link
-              key={agent.id}
-              to="/agent/$id"
-              params={{ id: agent.id }}
-              className="block h-full"
-            >
-              <Card
-                className="h-full gap-0 py-0 ring-0 transition-transform hover:-translate-y-0.5 hover:shadow-md"
-                style={{
-                  border: `1px solid ${color}`,
-                  backgroundColor: `${color}1A`,
-                }}
-              >
-                <CardContent className="space-y-4 py-5">
-                  <div className="flex items-center gap-3">
-                    <div
-                      className="rounded-xl border p-2"
-                      style={{ borderColor: color }}
-                    >
-                      <IconComponent
-                        iconName={agent.icon || ""}
-                        color={color}
-                        fallBackIcon={<Bot style={{ color }} />}
-                      />
-                    </div>
-                    <h2 className="text-base font-semibold">{agent.name}</h2>
+            <Card className="h-full gap-0 py-0">
+              <CardContent className="space-y-4 py-5">
+                <div className="flex items-center gap-3">
+                  <div className="rounded-xl border p-2">
+                    <IconComponent
+                      iconName={skill.icon || ""}
+                      fallBackIcon={<Wrench />}
+                    />
                   </div>
-                  <p className="text-sm text-muted-foreground">
-                    {agent.description}
-                  </p>
-                </CardContent>
-              </Card>
-            </Link>
+                  <h2 className="text-base font-semibold">{skill.name}</h2>
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  {skill.description}
+                </p>
+              </CardContent>
+            </Card>
           )
         })}
       </div>
