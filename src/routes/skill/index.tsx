@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router"
 import { Card, CardContent } from "#/components/ui/card"
 import { Skeleton } from "#/components/ui/skeleton"
 import { useSkillsQuery } from "#/hooks/query/skills.query"
-import { AlertTriangle, Wrench } from "lucide-react"
+import { AlertTriangle, ScrollText } from "lucide-react"
 import { IconComponent } from "#/components/icon"
 
 export const Route = createFileRoute("/skill/")({
@@ -76,7 +76,7 @@ function RouteComponent() {
                   <div className="rounded-xl border p-2">
                     <IconComponent
                       iconName={skill.icon || ""}
-                      fallBackIcon={<Wrench />}
+                      fallBackIcon={<ScrollText />}
                     />
                   </div>
                   <h2 className="text-base font-semibold">{skill.name}</h2>

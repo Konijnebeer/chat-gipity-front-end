@@ -16,13 +16,13 @@ import { Route as ChatIndexRouteImport } from './routes/chat/index'
 import { Route as AgentIndexRouteImport } from './routes/agent/index'
 import { Route as SkillCreateRouteImport } from './routes/skill/create'
 import { Route as ChatIdRouteImport } from './routes/chat/$id'
-import { Route as AgentEditRouteImport } from './routes/agent/edit'
 import { Route as AgentCreateRouteImport } from './routes/agent/create'
 import { Route as AgentIdRouteImport } from './routes/agent/$id'
 import { Route as authRegisterRouteImport } from './routes/(auth)/register'
 import { Route as authLogoutRouteImport } from './routes/(auth)/logout'
 import { Route as authLoginRouteImport } from './routes/(auth)/login'
 import { Route as authAccountRouteImport } from './routes/(auth)/account'
+import { Route as AgentIdEditRouteImport } from './routes/agent/$id.edit'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -59,11 +59,6 @@ const ChatIdRoute = ChatIdRouteImport.update({
   path: '/chat/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AgentEditRoute = AgentEditRouteImport.update({
-  id: '/agent/edit',
-  path: '/agent/edit',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const AgentCreateRoute = AgentCreateRouteImport.update({
   id: '/agent/create',
   path: '/agent/create',
@@ -94,6 +89,11 @@ const authAccountRoute = authAccountRouteImport.update({
   path: '/account',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AgentIdEditRoute = AgentIdEditRouteImport.update({
+  id: '/edit',
+  path: '/edit',
+  getParentRoute: () => AgentIdRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -101,15 +101,15 @@ export interface FileRoutesByFullPath {
   '/login': typeof authLoginRoute
   '/logout': typeof authLogoutRoute
   '/register': typeof authRegisterRoute
-  '/agent/$id': typeof AgentIdRoute
+  '/agent/$id': typeof AgentIdRouteWithChildren
   '/agent/create': typeof AgentCreateRoute
-  '/agent/edit': typeof AgentEditRoute
   '/chat/$id': typeof ChatIdRoute
   '/skill/create': typeof SkillCreateRoute
   '/agent/': typeof AgentIndexRoute
   '/chat/': typeof ChatIndexRoute
   '/skill/': typeof SkillIndexRoute
   '/tools/': typeof ToolsIndexRoute
+  '/agent/$id/edit': typeof AgentIdEditRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -117,15 +117,15 @@ export interface FileRoutesByTo {
   '/login': typeof authLoginRoute
   '/logout': typeof authLogoutRoute
   '/register': typeof authRegisterRoute
-  '/agent/$id': typeof AgentIdRoute
+  '/agent/$id': typeof AgentIdRouteWithChildren
   '/agent/create': typeof AgentCreateRoute
-  '/agent/edit': typeof AgentEditRoute
   '/chat/$id': typeof ChatIdRoute
   '/skill/create': typeof SkillCreateRoute
   '/agent': typeof AgentIndexRoute
   '/chat': typeof ChatIndexRoute
   '/skill': typeof SkillIndexRoute
   '/tools': typeof ToolsIndexRoute
+  '/agent/$id/edit': typeof AgentIdEditRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -134,15 +134,15 @@ export interface FileRoutesById {
   '/(auth)/login': typeof authLoginRoute
   '/(auth)/logout': typeof authLogoutRoute
   '/(auth)/register': typeof authRegisterRoute
-  '/agent/$id': typeof AgentIdRoute
+  '/agent/$id': typeof AgentIdRouteWithChildren
   '/agent/create': typeof AgentCreateRoute
-  '/agent/edit': typeof AgentEditRoute
   '/chat/$id': typeof ChatIdRoute
   '/skill/create': typeof SkillCreateRoute
   '/agent/': typeof AgentIndexRoute
   '/chat/': typeof ChatIndexRoute
   '/skill/': typeof SkillIndexRoute
   '/tools/': typeof ToolsIndexRoute
+  '/agent/$id/edit': typeof AgentIdEditRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -154,13 +154,13 @@ export interface FileRouteTypes {
     | '/register'
     | '/agent/$id'
     | '/agent/create'
-    | '/agent/edit'
     | '/chat/$id'
     | '/skill/create'
     | '/agent/'
     | '/chat/'
     | '/skill/'
     | '/tools/'
+    | '/agent/$id/edit'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -170,13 +170,13 @@ export interface FileRouteTypes {
     | '/register'
     | '/agent/$id'
     | '/agent/create'
-    | '/agent/edit'
     | '/chat/$id'
     | '/skill/create'
     | '/agent'
     | '/chat'
     | '/skill'
     | '/tools'
+    | '/agent/$id/edit'
   id:
     | '__root__'
     | '/'
@@ -186,13 +186,13 @@ export interface FileRouteTypes {
     | '/(auth)/register'
     | '/agent/$id'
     | '/agent/create'
-    | '/agent/edit'
     | '/chat/$id'
     | '/skill/create'
     | '/agent/'
     | '/chat/'
     | '/skill/'
     | '/tools/'
+    | '/agent/$id/edit'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -201,9 +201,8 @@ export interface RootRouteChildren {
   authLoginRoute: typeof authLoginRoute
   authLogoutRoute: typeof authLogoutRoute
   authRegisterRoute: typeof authRegisterRoute
-  AgentIdRoute: typeof AgentIdRoute
+  AgentIdRoute: typeof AgentIdRouteWithChildren
   AgentCreateRoute: typeof AgentCreateRoute
-  AgentEditRoute: typeof AgentEditRoute
   ChatIdRoute: typeof ChatIdRoute
   SkillCreateRoute: typeof SkillCreateRoute
   AgentIndexRoute: typeof AgentIndexRoute
@@ -263,13 +262,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ChatIdRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/agent/edit': {
-      id: '/agent/edit'
-      path: '/agent/edit'
-      fullPath: '/agent/edit'
-      preLoaderRoute: typeof AgentEditRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/agent/create': {
       id: '/agent/create'
       path: '/agent/create'
@@ -312,8 +304,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof authAccountRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/agent/$id/edit': {
+      id: '/agent/$id/edit'
+      path: '/edit'
+      fullPath: '/agent/$id/edit'
+      preLoaderRoute: typeof AgentIdEditRouteImport
+      parentRoute: typeof AgentIdRoute
+    }
   }
 }
+
+interface AgentIdRouteChildren {
+  AgentIdEditRoute: typeof AgentIdEditRoute
+}
+
+const AgentIdRouteChildren: AgentIdRouteChildren = {
+  AgentIdEditRoute: AgentIdEditRoute,
+}
+
+const AgentIdRouteWithChildren =
+  AgentIdRoute._addFileChildren(AgentIdRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
@@ -321,9 +331,8 @@ const rootRouteChildren: RootRouteChildren = {
   authLoginRoute: authLoginRoute,
   authLogoutRoute: authLogoutRoute,
   authRegisterRoute: authRegisterRoute,
-  AgentIdRoute: AgentIdRoute,
+  AgentIdRoute: AgentIdRouteWithChildren,
   AgentCreateRoute: AgentCreateRoute,
-  AgentEditRoute: AgentEditRoute,
   ChatIdRoute: ChatIdRoute,
   SkillCreateRoute: SkillCreateRoute,
   AgentIndexRoute: AgentIndexRoute,

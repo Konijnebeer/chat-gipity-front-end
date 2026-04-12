@@ -27,7 +27,7 @@ function RouteComponent() {
 
   const chatMutation = useMutation({
     mutationFn: async (value: MessageRequest) => {
-      const response = await fetchWithAuth("/api/chat/new", {
+      const response = await fetchWithAuth("/api/chat", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

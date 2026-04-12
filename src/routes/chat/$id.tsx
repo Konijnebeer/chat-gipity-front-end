@@ -37,10 +37,140 @@ export const Route = createFileRoute("/chat/$id")({
   component: RouteComponent,
 })
 
+type StreamEvent =
+  | { type: "token"; content: string }
+  | { type: "tool_start"; toolName: string; input: unknown; callId: string }
+  | { type: "tool_result"; toolName: string; output: unknown; callId: string }
+  | { type: "agent_step"; step: number }
+  | { type: "done"; fullContent: string }
+  | { type: "error"; message: string }
+
+export type StreamingBlock =
+  | { type: "token"; content: string }
+  | { type: "text"; content: string }
+  | { type: "tool_start"; toolName: string; input: unknown; callId: string }
+  | { type: "tool_result"; toolName: string; output: unknown; callId: string }
+
 function useChat(id: string) {
   const queryClient = useQueryClient()
-  const [streamingMessage, setStreamingMessage] = useState<string | null>(null)
-  const activeStreamControllerRef = useRef<AbortController | null>(null)
+  const [streamingBlocks, setStreamingBlocks] = useState<
+    StreamingBlock[] | null
+  >(null)
+  const sendMessage = useCallback(
+    async (content: string) => {
+      setStreamingBlocks([])
+
+      const response = await fetchWithAuth(`/api/chat/${id}/message`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ content }),
+      })
+
+      if (!response.ok || !response.body) {
+        throw new Error(`Failed to send message with status ${response.status}`)
+      }
+
+      const reader = response.body.getReader()
+      const decoder = new TextDecoder()
+      let buffer = ""
+
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+
+        buffer += decoder.decode(value, { stream: true })
+        const lines = buffer.split("\n")
+        buffer = lines.pop() ?? ""
+
+        for (const line of lines) {
+          if (!line.startsWith("data: ")) continue
+
+          const raw = line.slice(6).trim()
+          if (!raw) continue
+
+          let event: StreamEvent
+          try {
+            event = JSON.parse(raw)
+          } catch {
+            console.warn("Failed to parse SSE event:", raw)
+            continue
+          }
+
+          switch (event.type) {
+            case "token":
+              setStreamingBlocks((prev) => {
+                if (!prev) return prev
+                const last = prev[prev.length - 1]
+                // Merge consecutive tokens into one block
+                if (last?.type === "token") {
+                  return [
+                    ...prev.slice(0, -1),
+                    { type: "token", content: last.content + event.content },
+                  ]
+                }
+                return [...prev, { type: "token", content: event.content }]
+              })
+              break
+
+            case "tool_start":
+              setStreamingBlocks((prev) => [
+                ...(prev ?? []),
+                {
+                  type: "tool_start",
+                  toolName: event.toolName,
+                  input: event.input,
+                  callId: event.callId,
+                },
+              ])
+              console.log(`Tool called: ${event.toolName}`, event.input)
+              break
+
+            case "tool_result":
+              setStreamingBlocks((prev) => [
+                ...(prev ?? []),
+                {
+                  type: "tool_result",
+                  toolName: event.toolName,
+                  output: event.output,
+                  callId: event.callId,
+                },
+              ])
+              console.log(`Tool done: ${event.toolName}`, event.output)
+              break
+
+            case "agent_step":
+              console.log(`Agent step: ${event.step}`)
+              break
+
+            case "done":
+              setStreamingBlocks(null)
+              await queryClient.invalidateQueries({
+                queryKey: ["chatHistory", id],
+              })
+              break
+
+            case "error":
+              throw new Error(event.message)
+          }
+        }
+      }
+    },
+    [id, queryClient]
+  )
+
+  return { streamingBlocks, sendMessage }
+}
+
+function RouteComponent() {
+  const { id } = Route.useParams()
+  const { setEntity, clearEntity, setHeaderRight, clearHeaderRight } =
+    useBreadcrumbContext()
+  const { streamingBlocks, sendMessage } = useChat(id)
+
+  const agentsQuery = useAgentsQuery()
+  const agents = agentsQuery.data ?? []
 
   const historyQuery = useQuery({
     queryKey: ["chatHistory", id],
@@ -60,127 +190,6 @@ function useChat(id: string) {
       return data
     },
   })
-
-  const stopStreaming = useCallback(() => {
-    activeStreamControllerRef.current?.abort()
-    activeStreamControllerRef.current = null
-    setStreamingMessage(null)
-    void queryClient.invalidateQueries({ queryKey: ["chatHistory", id] })
-  }, [id, queryClient])
-
-  const sendMessage = useCallback(
-    async (content: string, sender?: string) => {
-      let requestedAgentId: string | null = null
-      // Currently broken @ts-expect-error
-      // queryClient.setQueryData<MessageResponse[]>(['chatHistory', id], (prev = []) => [
-      //   ...prev,
-      //   { role: 'user', content },
-      // ])
-
-      try {
-        const streamController = new AbortController()
-        activeStreamControllerRef.current = streamController
-        setStreamingMessage("")
-
-        const response = await fetch(
-          `/api/chat/${id}/message${sender ? `/${sender}` : ""}`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ content }),
-            signal: streamController.signal,
-          }
-        )
-
-        if (!response.ok || !response.body) {
-          throw new Error(`Chat request failed with status ${response.status}`)
-        }
-
-        const reader = response.body.getReader()
-        const decoder = new TextDecoder()
-        let buffer = ""
-
-        while (true) {
-          const { done, value } = await reader.read()
-          if (done) {
-            break
-          }
-
-          buffer += decoder.decode(value, { stream: true })
-          const lines = buffer.split("\n")
-          buffer = lines.pop() ?? ""
-
-          for (const line of lines) {
-            if (!line.startsWith("data: ")) {
-              continue
-            }
-
-            const payload = line.slice(6).trim()
-            if (payload.includes("[REQUEST]")) {
-              const requestData = JSON.parse(payload.slice(9).trim()) as {
-                id: string
-              }
-              requestedAgentId = requestData.id
-              continue
-            }
-            if (payload === "[DONE]") {
-              break
-            }
-
-            const parsed = JSON.parse(payload) as {
-              token?: string
-              error?: string
-            }
-            if (parsed.error) {
-              throw new Error(parsed.error)
-            }
-
-            if (parsed.token) {
-              setStreamingMessage((prev) => (prev ?? "") + parsed.token)
-            }
-          }
-        }
-
-        await queryClient.invalidateQueries({ queryKey: ["chatHistory", id] })
-        // If an agent requested another agent call, trigger a follow-up response.
-        if (requestedAgentId && !streamController.signal.aborted) {
-          console.log(
-            `Triggering message from requested agent ${requestedAgentId}`
-          )
-          void sendMessage("", requestedAgentId)
-        }
-      } catch (error) {
-        if (error instanceof Error && error.name === "AbortError") {
-          return
-        }
-
-        const message =
-          error instanceof Error
-            ? error.message
-            : "Failed to send chat request. Please try again."
-        toast.error(message)
-        console.error("Chat API error:", error)
-      } finally {
-        activeStreamControllerRef.current = null
-        setStreamingMessage(null)
-      }
-    },
-    [id, queryClient]
-  )
-
-  return { historyQuery, streamingMessage, sendMessage, stopStreaming }
-}
-
-function RouteComponent() {
-  const { id } = Route.useParams()
-  const { setEntity, clearEntity, setHeaderRight, clearHeaderRight } =
-    useBreadcrumbContext()
-  const { historyQuery, streamingMessage, sendMessage, stopStreaming } =
-    useChat(id)
-  const agentsQuery = useAgentsQuery()
-  const agents = agentsQuery.data ?? []
 
   const currentChatAgents = historyQuery.data?.agents ?? []
   const headerKey = useMemo(
@@ -254,7 +263,7 @@ function RouteComponent() {
     }
   }, [clearHeaderRight, headerAgentsNode, headerKey, setHeaderRight])
 
-  const isPending = chatForm.state.isSubmitting || streamingMessage !== null
+  const isPending = chatForm.state.isSubmitting || streamingBlocks !== null
 
   return (
     <main className="flex h-[calc(100dvh-4rem)] min-h-0 w-full flex-col px-4 pb-16">
@@ -268,7 +277,7 @@ function RouteComponent() {
         {historyQuery.data && (
           <ChatHistory
             messages={historyQuery.data.messages}
-            streamingMessage={streamingMessage}
+            streamingBlocks={streamingBlocks}
           />
         )}
       </div>
@@ -291,7 +300,7 @@ function RouteComponent() {
                   MessageRequestSchema.shape.content.maxLength ?? undefined
                 }
                 isPending={isPending}
-                onStop={stopStreaming}
+                // onStop={stopStreaming}
                 agents={agents}
               />
             )}

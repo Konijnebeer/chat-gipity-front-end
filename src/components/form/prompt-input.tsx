@@ -71,6 +71,32 @@ function PromptInputField({
     return () => observer.disconnect()
   }, [recalculateRows])
 
+  const AgentsDropdown = (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <InputGroupButton variant="outline" size="icon-sm" disabled={isPending}>
+          <Plus />
+        </InputGroupButton>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent className="max-h-60 min-w-40">
+        <DropdownMenuGroup>
+          <DropdownMenuLabel>Select agent</DropdownMenuLabel>
+          {agents.map((agent) => (
+            <DropdownMenuItem
+              key={agent.id}
+              onSelect={() => {
+                field.setValue(`${field.state.value} @${agent.name} `)
+              }}
+            >
+              <IconComponent iconName={agent.icon || ""} color={agent.color} />
+              <span>{agent.name}</span>
+            </DropdownMenuItem>
+          ))}
+        </DropdownMenuGroup>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  )
+
   return (
     <Field>
       {label && (
@@ -102,41 +128,15 @@ function PromptInputField({
           rows={rows}
           className="max-h-40 min-h-9 overflow-y-auto leading-5"
         />
-        <InputGroupAddon align={rows > 1 ? "block-start" : "inline-start"}>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <InputGroupButton
-                variant="outline"
-                size="icon-sm"
-                disabled={isPending}
-              >
-                <Plus />
-              </InputGroupButton>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="max-h-60 min-w-40">
-              <DropdownMenuGroup>
-                <DropdownMenuLabel>Select agent</DropdownMenuLabel>
-                {agents.map((agent) => (
-                  <DropdownMenuItem
-                    key={agent.id}
-                    onSelect={() => {
-                      field.setValue(`${field.state.value} @${agent.name} `)
-                    }}
-                  >
-                    <IconComponent
-                      iconName={agent.icon || ""}
-                      color={agent.color}
-                    />
-                    <span>{agent.name}</span>
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuGroup>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </InputGroupAddon>
+        {rows === 1 && (
+          <InputGroupAddon align="inline-start">
+            {AgentsDropdown}
+          </InputGroupAddon>
+        )}
         <InputGroupAddon align={rows > 1 ? "block-end" : "inline-end"}>
+          {rows > 1 && AgentsDropdown}
           {maxLength && (
-            <InputGroupText className={rows > 1 ? "mt-auto" : undefined}>
+            <InputGroupText >
               {`${field.state.value.length}/${maxLength}`}
             </InputGroupText>
           )}

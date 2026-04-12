@@ -1,15 +1,4 @@
 import { IconComponent } from "#/components/icon"
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "#/components/ui/alert-dialog"
 import { Button } from "#/components/ui/button"
 import {
   Card,
@@ -20,11 +9,25 @@ import {
 } from "#/components/ui/card"
 import { Skeleton } from "#/components/ui/skeleton"
 import { useBreadcrumbContext } from "#/hooks/breadcrumb.context"
-import type { AgentResponse } from "@chat-gipity/schemas"
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
+import {
+  createFileRoute,
+  Link,
+  Outlet,
+  useLocation,
+} from "@tanstack/react-router"
 import { useEffect } from "react"
-import { toast } from "sonner"
+import { useAgentDetails } from "./-query/detail.query"
+import type { SkillResponse, ToolResponse } from "@chat-gipity/schemas"
+import {
+  Item,
+  ItemContent,
+  ItemDescription,
+  ItemGroup,
+  ItemHeader,
+  ItemMedia,
+  ItemTitle,
+} from "#/components/ui/item"
+import { ScrollText, Wrench } from "lucide-react"
 
 export const Route = createFileRoute("/agent/$id")({
   head: () => ({
@@ -39,46 +42,15 @@ export const Route = createFileRoute("/agent/$id")({
 
 function RouteComponent() {
   const { id } = Route.useParams()
-  const navigate = useNavigate()
-  const queryClient = useQueryClient()
+  const location = useLocation()
+  const isEditRoute = location.pathname.endsWith("/edit")
+
   const { setEntity, clearEntity } = useBreadcrumbContext()
 
-  const deleteAgentMutation = useMutation({
-    mutationFn: async () => {
-      const response = await fetch(`/api/agent/${id}`, {
-        method: "DELETE",
-      })
-
-      if (!response.ok) {
-        throw new Error(`Failed to delete agent with status ${response.status}`)
-      }
-    },
-    onSuccess: async () => {
-      toast.success("Agent deleted successfully")
-      await queryClient.invalidateQueries({ queryKey: ["agents"] })
-      navigate({ to: "/agent" })
-    },
-    onError: (error) => {
-      toast.error("Failed to delete agent. Please try again.")
-      console.error("Delete agent error:", error)
-    },
-  })
-
-  const agentDetailsQuery = useQuery({
-    queryKey: ['agentDetails', id],
-    queryFn: async () => {
-      const response = await fetch(`/api/agent/${id}`)
-      if (!response.ok) {
-        throw new Error(`Failed to fetch agent details with status ${response.status}`)
-      }
-
-      const data = await response.json() as AgentResponse
-      return data
-    },
-  })
+  const agentDetailsQuery = useAgentDetails(id)
 
   useEffect(() => {
-    if (agentDetailsQuery.data?.name) {
+    if (!isEditRoute && agentDetailsQuery.data?.name) {
       setEntity({
         type: "agent",
         id,
@@ -89,7 +61,11 @@ function RouteComponent() {
     return () => {
       clearEntity("agent")
     }
-  }, [agentDetailsQuery.data?.name, clearEntity, id, setEntity])
+  }, [agentDetailsQuery.data?.name, clearEntity, id, isEditRoute, setEntity])
+
+  if (isEditRoute) {
+    return <Outlet />
+  }
 
   if (agentDetailsQuery.isLoading) {
     return (
@@ -127,7 +103,11 @@ function RouteComponent() {
             </CardDescription>
           </CardHeader>
           <CardContent className="flex gap-2">
-            <Button type="button" variant="outline" onClick={() => agentDetailsQuery.refetch()}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => agentDetailsQuery.refetch()}
+            >
               Retry
             </Button>
             <Button asChild>
@@ -151,10 +131,15 @@ function RouteComponent() {
                 className="flex size-12 items-center justify-center rounded-full border"
                 style={agent.color ? { borderColor: agent.color } : undefined}
               >
-                <IconComponent iconName={agent.icon || ""} color={agent.color} />
+                <IconComponent
+                  iconName={agent.icon || ""}
+                  color={agent.color}
+                />
               </div>
               <div>
-                <CardTitle className="text-3xl">{agent.name}</CardTitle>
+                <CardTitle className="text-3xl">
+                  <h1>{agent.name}</h1>
+                </CardTitle>
                 <CardDescription>Agent profile details</CardDescription>
               </div>
             </div>
@@ -162,28 +147,11 @@ function RouteComponent() {
               <Button asChild variant="outline">
                 <Link to="/agent">All Agents</Link>
               </Button>
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button variant="destructive">Delete Agent</Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>Delete this agent?</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      This action cannot be undone. The agent and its configuration will be permanently removed.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction
-                      onClick={() => void deleteAgentMutation.mutateAsync()}
-                      disabled={deleteAgentMutation.isPending}
-                    >
-                      {deleteAgentMutation.isPending ? "Deleting..." : "Delete"}
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
+              <Button asChild>
+                <Link to="/agent/$id/edit" params={{ id: agent.id }}>
+                  Edit Agent
+                </Link>
+              </Button>
             </div>
           </div>
         </CardHeader>
@@ -192,25 +160,35 @@ function RouteComponent() {
       <div className="grid gap-4 md:grid-cols-3">
         <Card className="md:col-span-2">
           <CardHeader>
-            <CardTitle>Description</CardTitle>
+            <CardTitle>
+              <h2>Description</h2>
+            </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-sm leading-relaxed text-muted-foreground">{agent.description}</p>
+            <p className="text-sm leading-relaxed text-muted-foreground">
+              {agent.description}
+            </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader>
-            <CardTitle>Metadata</CardTitle>
+            <CardTitle>
+              <h2>Metadata</h2>
+            </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3 text-sm">
             <div className="space-y-1">
               <p className="font-medium">Icon</p>
-              <p className="text-muted-foreground">{agent.icon || "No icon selected"}</p>
+              <p className="text-muted-foreground">
+                {agent.icon || "No icon selected"}
+              </p>
             </div>
             <div className="space-y-1">
               <p className="font-medium">Color</p>
-              <p className="text-muted-foreground">{agent.color || "No color selected"}</p>
+              <p className="text-muted-foreground">
+                {agent.color || "No color selected"}
+              </p>
             </div>
             <div className="space-y-1">
               <p className="font-medium">Agent ID</p>
@@ -222,12 +200,75 @@ function RouteComponent() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Personality</CardTitle>
+          <CardTitle>
+            <h2>Personality</h2>
+          </CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-sm leading-relaxed text-muted-foreground">{agent.personality}</p>
+          <p className="text-sm leading-relaxed text-muted-foreground">
+            {agent.personality}
+          </p>
+        </CardContent>
+      </Card>
+      <Card>
+        <CardHeader>
+          <CardTitle>
+            <h2>Tools & Skills</h2>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <h3 className="text-lg font-semibold">Tools</h3>
+          <ItemDetails
+            items={agent.tools || []}
+            fallBackIcon={<Wrench />}
+            empty="No tools assigned."
+          />
+          <h3 className="text-lg font-semibold">Skills</h3>
+          <p className="text-sm leading-relaxed text-muted-foreground">
+            <ItemDetails
+              items={agent.skills || []}
+              fallBackIcon={<ScrollText />}
+              empty="No skills assigned."
+            />
+          </p>
         </CardContent>
       </Card>
     </main>
+  )
+}
+
+function ItemDetails({
+  items,
+  fallBackIcon,
+  empty,
+}: {
+  items: SkillResponse[] | ToolResponse[]
+  fallBackIcon: React.ReactNode
+  empty: string
+}) {
+  return (
+    <ItemGroup className="pt-2 pb-4 lg:grid lg:grid-cols-2">
+      {items.map((item) => (
+        <Item key={item.id} variant="muted">
+          <ItemMedia>
+            <IconComponent
+              iconName={item.icon || ""}
+              fallBackIcon={fallBackIcon}
+            />
+          </ItemMedia>
+          <ItemContent>
+            <ItemTitle>{item.name}</ItemTitle>
+            <ItemDescription>{item.description}</ItemDescription>
+          </ItemContent>
+        </Item>
+      ))}
+      {/* fallback */}
+      {items.length === 0 && (
+        <div className="flex items-center gap-3">
+          <div className="rounded-xl border p-2">{fallBackIcon}</div>
+          <p className="text-sm text-muted-foreground">{empty}</p>
+        </div>
+      )}
+    </ItemGroup>
   )
 }

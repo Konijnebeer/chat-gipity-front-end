@@ -11,13 +11,15 @@ import {
 } from "#/components/ui/tooltip"
 import { ArrowDownLeft, ArrowUpRight, Bot, Sigma, User } from "lucide-react"
 import { Badge } from "#/components/ui/badge"
+import type { StreamingBlock } from "../$id"
+import { ToolResult, ToolStart } from "./tools/tool"
 
 const messageVariants = cva(
   "prose max-w-[70%] rounded-3xl px-4 py-2 text-sm leading-relaxed dark:prose-invert prose-headings:my-1 prose-p:my-1 prose-pre:bg-muted prose-ol:my-0.5 prose-ul:my-0.5 prose-li:my-0.5 [&_blockquote]:border-s-muted [&_ol>li::marker]:font-bold [&_ol>li::marker]:text-primary [&_ul>li::marker]:text-secondary",
   {
     variants: {
       role: {
-        user: "ml-auto rounded-br-md bg-foreground text-background prose-p:text-background prose-headings:text-background",
+        user: "ml-auto rounded-br-md bg-foreground text-background prose-headings:text-background prose-p:text-background",
         assistant: "mr-auto rounded-bl-md bg-accent text-accent-foreground",
         system: "mx-auto rounded-full bg-secondary text-secondary-foreground",
       },
@@ -27,10 +29,6 @@ const messageVariants = cva(
     },
   }
 )
-
-type MessageProps = {
-  className?: string
-} & { message: MessageResponse }
 
 function highlightMentions(html: string): string {
   const mentionPattern = /(^|[\s(>])@([a-zA-Z0-9_-]+)/g
@@ -49,6 +47,82 @@ function highlightMentions(html: string): string {
     })
     .join("")
 }
+
+function StreamingMessage({ blocks }: { blocks: StreamingBlock[] }) {
+  return (
+    <div className="flex w-full">
+      <div className="mt-auto mr-2 h-fit rounded-full bg-muted p-1.5">
+        <Bot className="h-5 w-5 text-muted-foreground" />
+      </div>
+      <div className={messageVariants({ role: "assistant" })}>
+        <Blocks blocks={blocks} />
+      </div>
+    </div>
+  )
+}
+
+function Blocks({ blocks }: { blocks: StreamingBlock[] }) {
+  const completedToolCallIds = new Set(
+    blocks
+      .filter((block) => block.type === "tool_result")
+      .map((block) => block.callId)
+  )
+
+  return blocks.map((block, i) => {
+    switch (block.type) {
+      case "token":
+        return (
+          <div
+            key={i}
+            dangerouslySetInnerHTML={{
+              __html: highlightMentions(
+                micromark(block.content, { allowDangerousHtml: true })
+              ),
+            }}
+          />
+        )
+      case "text":
+        return (
+          <div
+            key={i}
+            dangerouslySetInnerHTML={{
+              __html: highlightMentions(
+                micromark(block.content, { allowDangerousHtml: true })
+              ),
+            }}
+          />
+        )
+      case "tool_start":
+        if (completedToolCallIds.has(block.callId)) {
+          return null
+        }
+
+        return (
+          <ToolStart
+            key={i}
+            toolName={block.toolName}
+            input={block.input}
+            callId={block.callId}
+          />
+        )
+      case "tool_result":
+        return (
+          <ToolResult
+            key={i}
+            toolName={block.toolName}
+            output={block.output}
+            callId={block.callId}
+          />
+        )
+      default:
+        return null
+    }
+  })
+}
+
+type MessageProps = {
+  className?: string
+} & { message: MessageResponse }
 
 function Message({ message, className }: MessageProps) {
   const content = highlightMentions(
@@ -83,7 +157,18 @@ function Message({ message, className }: MessageProps) {
       )}
 
       <div className={cn(messageVariants({ role: message.role }), className)}>
-        <div dangerouslySetInnerHTML={{ __html: content }} />
+        {message.blocks && message.blocks.length > 0 ? (
+          <Blocks blocks={message.blocks as StreamingBlock[]} />
+        ) : (
+          // Fallback for user messages or messages without blocks
+          <div
+            dangerouslySetInnerHTML={{
+              __html: highlightMentions(
+                micromark(message.content, { allowDangerousHtml: true })
+              ),
+            }}
+          />
+        )}
         {message.inputTokens !== undefined &&
           message.outputTokens !== undefined && (
             <div className="mt-2 flex gap-1">
@@ -121,4 +206,4 @@ function AgentInfoCard() {
   // amount of tokens they have outputted
 }
 
-export { Message }
+export { Message, StreamingMessage }

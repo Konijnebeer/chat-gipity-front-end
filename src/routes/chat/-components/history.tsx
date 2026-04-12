@@ -1,28 +1,29 @@
 import { Skeleton } from "#/components/ui/skeleton"
-import { Message } from "./message"
+import type { StreamingBlock } from "../$id"
+import { Message, StreamingMessage } from "./message"
 import type { MessageResponse } from "@chat-gipity/schemas"
 import { useEffect, useRef } from "react"
 
 type ChatHistoryProps = {
   messages: MessageResponse[]
-  streamingMessage: string | null
+  streamingBlocks: StreamingBlock[] | null
 }
 
-function ChatHistory({ messages, streamingMessage }: ChatHistoryProps) {
+function ChatHistory({ messages, streamingBlocks }: ChatHistoryProps) {
   const endRef = useRef<HTMLDivElement | null>(null)
+  // console.log("ChatHistory received messages:", messages)
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ block: "end" })
-  }, [messages, streamingMessage])
-  // console.log("Rendering ChatHistory with messages:", messages, "and streamingMessage:", streamingMessage)
+  }, [messages, streamingBlocks])
+  // console.log("Rendering ChatHistory with messages:", messages, "and streamingBlocks:", streamingBlocks)
   return (
-    <div className="mx-auto flex w-full max-w-4xl flex-col gap-4 py-2 mt-6">
+    <div className="mx-auto mt-6 flex w-full max-w-4xl flex-col gap-4 py-2">
       {messages.map((message, i) => (
         <Message key={i} message={message} />
       ))}
-      {streamingMessage !== null && (
-        // @ts-expect-error
-        <Message message={{ role: "assistant", content: streamingMessage, }} />
+      {streamingBlocks !== null && (
+        <StreamingMessage blocks={streamingBlocks} />
       )}
       <div ref={endRef} />
     </div>
