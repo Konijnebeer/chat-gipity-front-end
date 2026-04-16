@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router"
-import { useCallback, useEffect, useMemo, useRef, useState } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { IconComponent } from "#/components/icon"
 import {
@@ -8,7 +8,6 @@ import {
   AvatarGroup,
   AvatarGroupCount,
 } from "#/components/ui/avatar"
-import { useAgentsQuery } from "#/hooks/query/agents.query"
 import { useBreadcrumbContext } from "#/hooks/breadcrumb.context"
 import { usePromptForm } from "#/hooks/prompt.form"
 import { FieldGroup } from "#/components/ui/field"
@@ -42,6 +41,7 @@ type StreamEvent =
   | { type: "tool_start"; toolName: string; input: unknown; callId: string }
   | { type: "tool_result"; toolName: string; output: unknown; callId: string }
   | { type: "agent_step"; step: number }
+  | { type: "ping"; pinged: boolean }
   | { type: "done"; fullContent: string }
   | { type: "error"; message: string }
 
@@ -56,17 +56,30 @@ function useChat(id: string) {
   const [streamingBlocks, setStreamingBlocks] = useState<
     StreamingBlock[] | null
   >(null)
+
   const sendMessage = useCallback(
-    async (content: string) => {
+    async (content: string, agentRequest?: boolean) => {
       setStreamingBlocks([])
 
-      const response = await fetchWithAuth(`/api/chat/${id}/message`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ content }),
-      })
+      let response
+
+      if (agentRequest) {
+        response = await fetchWithAuth(`/api/chat/${id}/message/assistant`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ content }),
+        })
+      } else {
+        response = await fetchWithAuth(`/api/chat/${id}/message`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ content }),
+        })
+      }
 
       if (!response.ok || !response.body) {
         throw new Error(`Failed to send message with status ${response.status}`)
@@ -144,6 +157,11 @@ function useChat(id: string) {
               console.log(`Agent step: ${event.step}`)
               break
 
+            case "ping":
+              console.log(`Ping received. Pinged: ${event.pinged}`)
+              sendMessage(`@${id} has been pinged.`, true)
+              break
+
             case "done":
               setStreamingBlocks(null)
               await queryClient.invalidateQueries({
@@ -168,9 +186,6 @@ function RouteComponent() {
   const { setEntity, clearEntity, setHeaderRight, clearHeaderRight } =
     useBreadcrumbContext()
   const { streamingBlocks, sendMessage } = useChat(id)
-
-  const agentsQuery = useAgentsQuery()
-  const agents = agentsQuery.data ?? []
 
   const historyQuery = useQuery({
     queryKey: ["chatHistory", id],
@@ -301,7 +316,6 @@ function RouteComponent() {
                 }
                 isPending={isPending}
                 // onStop={stopStreaming}
-                agents={agents}
               />
             )}
           />

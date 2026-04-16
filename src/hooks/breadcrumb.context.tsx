@@ -7,7 +7,7 @@ import {
   type ReactNode,
 } from "react"
 
-type BreadcrumbEntityType = "agent" | "chat"
+type BreadcrumbEntityType = "agent" | "chat" | "skill" | "tool"
 
 type BreadcrumbEntity = {
   type: BreadcrumbEntityType

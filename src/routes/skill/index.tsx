@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router"
+import { createFileRoute, Link } from "@tanstack/react-router"
 import { Card, CardContent } from "#/components/ui/card"
 import { Skeleton } from "#/components/ui/skeleton"
 import { useSkillsQuery } from "#/hooks/query/skills.query"
@@ -70,22 +70,29 @@ function RouteComponent() {
       <div className="grid auto-rows-fr grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {skills.map((skill) => {
           return (
-            <Card className="h-full gap-0 py-0">
-              <CardContent className="space-y-4 py-5">
-                <div className="flex items-center gap-3">
-                  <div className="rounded-xl border p-2">
-                    <IconComponent
-                      iconName={skill.icon || ""}
-                      fallBackIcon={<ScrollText />}
-                    />
+            <Link
+              key={skill.id}
+              to="/skill/$id"
+              params={{ id: skill.id }}
+              className="block h-full"
+            >
+              <Card className="h-full gap-0 py-0 transition-transform hover:-translate-y-0.5 hover:shadow-md">
+                <CardContent className="space-y-4 py-5">
+                  <div className="flex items-center gap-3">
+                    <div className="rounded-xl border p-2">
+                      <IconComponent
+                        iconName={skill.icon || ""}
+                        fallBackIcon={<ScrollText />}
+                      />
+                    </div>
+                    <h2 className="text-base font-semibold">{skill.name}</h2>
                   </div>
-                  <h2 className="text-base font-semibold">{skill.name}</h2>
-                </div>
-                <p className="text-sm text-muted-foreground">
-                  {skill.description}
-                </p>
-              </CardContent>
-            </Card>
+                  <p className="text-sm text-muted-foreground">
+                    {skill.description}
+                  </p>
+                </CardContent>
+              </Card>
+            </Link>
           )
         })}
       </div>

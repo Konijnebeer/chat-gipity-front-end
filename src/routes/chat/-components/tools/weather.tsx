@@ -14,17 +14,16 @@ import {
   Sun,
   Tornado,
 } from "lucide-react"
+import { ToolError, ToolLoading } from "./tool"
 
 function ToolStart({ input, callId }: { input: WeatherQuery; callId: string }) {
   void callId
   return (
-    <div>
-      <p>
-        <Spinner className="mr-2" />
-        <span>Searching for weather information in </span>
-        <span>{input.city}</span>
-      </p>
-    </div>
+    <ToolLoading
+      searchString="Searching for weather information in"
+      toolName="Weather Lookup"
+      query={input.city}
+    />
   )
 }
 
@@ -32,12 +31,17 @@ function ToolResult({
   output,
   callId,
 }: {
-  output: WeatherResponse
+  output: WeatherResponse | { error: string }
   callId: string
 }) {
   void callId
+
+  if ("error" in output) {
+    return <ToolError toolName="Weather Lookup" error={output.error} />
+  }
+
   return (
-    <div className="bg-muted/50 py-1 px-4 w-fit rounded-md ring-1 my-2 mr-2 inline-block">
+    <div className="mt-2 mr-2 mb-2 inline-block w-fit rounded-md bg-muted/50 px-4 py-1 ring-1">
       <p className="text-lg">{output.city}</p>
       <p className="flex items-center gap-2">
         <span>

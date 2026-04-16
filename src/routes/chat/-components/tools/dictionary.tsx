@@ -16,19 +16,7 @@ import type { DictionaryQuery, DictionaryResponse } from "@chat-gipity/schemas"
 import { ChevronDown, Volume2 } from "lucide-react"
 import { useState } from "react"
 import { Button } from "#/components/ui/button"
-
-type DictionaryToolError = {
-  error: string
-  detailed?: boolean
-}
-
-type DictionaryToolOutput = DictionaryResponse | DictionaryToolError
-
-function isDictionaryToolError(
-  output: DictionaryToolOutput
-): output is DictionaryToolError {
-  return typeof (output as { error?: unknown }).error === "string"
-}
+import { ToolError, ToolLoading } from "./tool"
 
 function DetailLine({
   label,
@@ -125,18 +113,11 @@ function ToolStart({
 }) {
   void callId
   return (
-    <div>
-      <p>
-        <Spinner className="mr-2" />
-        <span>Looking up </span>
-        <span className="italic">"{input.word}"</span>
-        {input.detailed && (
-          <Badge variant="secondary" className="ml-2 text-[10px] uppercase">
-            detailed
-          </Badge>
-        )}
-      </p>
-    </div>
+    <ToolLoading
+      searchString="Looking up"
+      toolName="Dictionary Lookup"
+      query={`"${input.word}"`}
+    />
   )
 }
 
@@ -144,16 +125,17 @@ function ToolResult({
   output,
   callId,
 }: {
-  output: DictionaryToolOutput
+  output: DictionaryResponse | { error: string }
   callId: string
 }) {
   void callId
   const [isMeaningsOpen, setIsMeaningsOpen] = useState(false)
-  if (isDictionaryToolError(output)) {
+  if ("error" in output) {
     return (
-      <div className="mt-2 mr-2 mb-2 inline-block w-fit max-w-xs space-y-3 rounded-md bg-muted/50 p-4 ring-1 lg:max-w-none">
-        <p>{output.error}</p>
-      </div>
+      <ToolError
+        toolName="Dictionary Lookup"
+        error={output.error}
+      />
     )
   }
 

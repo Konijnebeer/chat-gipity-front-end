@@ -52,7 +52,7 @@ export const Route = createRootRoute({
           throw new Error("Failed to refresh token")
         }
       } catch {
-        console.log("Failed to refresh token, redirecting to login")
+        console.error("Failed to refresh token, redirecting to login")
         // no valid refresh token, user needs to log in
         // check if not already on login page to avoid redirect loop
         if (window.location.pathname !== "/login" && window.location.pathname !== "/register") {

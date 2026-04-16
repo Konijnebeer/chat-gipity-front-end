@@ -1,7 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { useState } from "react"
-import { useAgentsQuery } from "#/hooks/query/agents.query"
 import { usePromptForm } from "#/hooks/prompt.form"
 import { FieldGroup } from "#/components/ui/field"
 import { toast } from "sonner"
@@ -22,8 +21,6 @@ function RouteComponent() {
   const queryClient = useQueryClient()
   const [lastMessageValue, setLastMessageValue] =
     useState<MessageRequest | null>(null)
-  const agentsQuery = useAgentsQuery()
-  const agents = agentsQuery.data ?? []
 
   const chatMutation = useMutation({
     mutationFn: async (value: MessageRequest) => {
@@ -98,7 +95,6 @@ function RouteComponent() {
                   MessageRequestSchema.shape.content.maxLength ?? undefined
                 }
                 isPending={chatMutation.isPending}
-                agents={agents}
               />
             )}
           />

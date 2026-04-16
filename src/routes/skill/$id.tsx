@@ -16,23 +16,16 @@ import {
   useLocation,
 } from "@tanstack/react-router"
 import { useEffect } from "react"
-import { useAgentDetails } from "./-query/detail.query"
-import type { SkillResponse, ToolResponse } from "@chat-gipity/schemas"
-import {
-  Item,
-  ItemContent,
-  ItemDescription,
-  ItemGroup,
-  ItemMedia,
-  ItemTitle,
-} from "#/components/ui/item"
-import { ScrollText, Wrench, Bot } from "lucide-react"
+import { useSkillDetails } from "./-query/detail.query"
+import { ScrollText } from "lucide-react"
+import { micromark } from "micromark"
+import { gfm, gfmHtml } from "micromark-extension-gfm"
 
-export const Route = createFileRoute("/agent/$id")({
+export const Route = createFileRoute("/skill/$id")({
   head: () => ({
     meta: [
       {
-        title: "Chat Gipity | Agent Details",
+        title: "Chat Gipity | Skill Details",
       },
     ],
   }),
@@ -46,27 +39,27 @@ function RouteComponent() {
 
   const { setEntity, clearEntity } = useBreadcrumbContext()
 
-  const agentDetailsQuery = useAgentDetails(id)
+  const skillDetailsQuery = useSkillDetails(id)
 
   useEffect(() => {
-    if (agentDetailsQuery.data?.name) {
+    if (skillDetailsQuery.data?.name) {
       setEntity({
-        type: "agent",
+        type: "skill",
         id,
-        name: agentDetailsQuery.data.name,
+        name: skillDetailsQuery.data.name,
       })
     }
 
     return () => {
-      clearEntity("agent")
+      clearEntity("skill")
     }
-  }, [agentDetailsQuery.data?.name, clearEntity, id, isEditRoute, setEntity])
+  }, [skillDetailsQuery.data?.name, clearEntity, id, isEditRoute, setEntity])
 
   if (isEditRoute) {
     return <Outlet />
   }
 
-  if (agentDetailsQuery.isLoading) {
+  if (skillDetailsQuery.isLoading) {
     return (
       <main className="mx-auto flex w-full max-w-4xl flex-col gap-4 px-4 py-8">
         <Card>
@@ -89,15 +82,15 @@ function RouteComponent() {
     )
   }
 
-  if (agentDetailsQuery.isError || !agentDetailsQuery.data) {
+  if (skillDetailsQuery.isError || !skillDetailsQuery.data) {
     return (
       <main className="mx-auto flex w-full max-w-4xl flex-col gap-4 px-4 py-8">
         <Card>
           <CardHeader>
-            <CardTitle>Failed to load agent</CardTitle>
+            <CardTitle>Failed to load skill</CardTitle>
             <CardDescription>
-              {agentDetailsQuery.error instanceof Error
-                ? agentDetailsQuery.error.message
+              {skillDetailsQuery.error instanceof Error
+                ? skillDetailsQuery.error.message
                 : "Unknown error"}
             </CardDescription>
           </CardHeader>
@@ -105,12 +98,12 @@ function RouteComponent() {
             <Button
               type="button"
               variant="outline"
-              onClick={() => agentDetailsQuery.refetch()}
+              onClick={() => skillDetailsQuery.refetch()}
             >
               Retry
             </Button>
             <Button asChild>
-              <Link to="/agent">Back to agents</Link>
+              <Link to="/skill">Back to skills</Link>
             </Button>
           </CardContent>
         </Card>
@@ -118,7 +111,7 @@ function RouteComponent() {
     )
   }
 
-  const agent = agentDetailsQuery.data
+  const skill = skillDetailsQuery.data
 
   return (
     <main className="mx-auto flex w-full max-w-4xl flex-col gap-4 px-4 py-8">
@@ -126,30 +119,26 @@ function RouteComponent() {
         <CardHeader>
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-              <div
-                className="flex size-12 items-center justify-center rounded-full border"
-                style={agent.color ? { borderColor: agent.color } : undefined}
-              >
+              <div className="flex size-12 items-center justify-center rounded-full border">
                 <IconComponent
-                  iconName={agent.icon || ""}
-                  color={agent.color}
-                  fallBackIcon={<Bot />}
+                  iconName={skill.icon || ""}
+                  fallBackIcon={<ScrollText />}
                 />
               </div>
               <div>
                 <CardTitle className="text-3xl">
-                  <h1>{agent.name}</h1>
+                  <h1>{skill.name}</h1>
                 </CardTitle>
-                <CardDescription>Agent profile details</CardDescription>
+                <CardDescription>Skill profile details</CardDescription>
               </div>
             </div>
             <div className="flex gap-2">
               <Button asChild variant="outline">
-                <Link to="/agent">All Agents</Link>
+                <Link to="/skill">All Skills</Link>
               </Button>
               <Button asChild>
-                <Link to="/agent/$id/edit" params={{ id: agent.id }}>
-                  Edit Agent
+                <Link to="/skill/$id/edit" params={{ id: skill.id }}>
+                  Edit Skill
                 </Link>
               </Button>
             </div>
@@ -166,7 +155,7 @@ function RouteComponent() {
           </CardHeader>
           <CardContent>
             <p className="text-sm leading-relaxed text-muted-foreground">
-              {agent.description}
+              {skill.description}
             </p>
           </CardContent>
         </Card>
@@ -181,18 +170,13 @@ function RouteComponent() {
             <div className="space-y-1">
               <p className="font-medium">Icon</p>
               <p className="text-muted-foreground">
-                {agent.icon || "No icon selected"}
+                {skill.icon || "No icon selected"}
               </p>
             </div>
+
             <div className="space-y-1">
-              <p className="font-medium">Color</p>
-              <p className="text-muted-foreground">
-                {agent.color || "No color selected"}
-              </p>
-            </div>
-            <div className="space-y-1">
-              <p className="font-medium">Agent ID</p>
-              <p className="break-all text-muted-foreground">{agent.id}</p>
+              <p className="font-medium">Skill ID</p>
+              <p className="break-all text-muted-foreground">{skill.id}</p>
             </div>
           </CardContent>
         </Card>
@@ -201,74 +185,23 @@ function RouteComponent() {
       <Card>
         <CardHeader>
           <CardTitle>
-            <h2>Personality</h2>
+            <h2>Content</h2>
           </CardTitle>
         </CardHeader>
         <CardContent>
           <p className="text-sm leading-relaxed text-muted-foreground">
-            {agent.personality}
-          </p>
-        </CardContent>
-      </Card>
-      <Card>
-        <CardHeader>
-          <CardTitle>
-            <h2>Tools & Skills</h2>
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <h3 className="text-lg font-semibold">Tools</h3>
-          <ItemDetails
-            items={agent.tools || []}
-            fallBackIcon={<Wrench />}
-            empty="No tools assigned."
-          />
-          <h3 className="text-lg font-semibold">Skills</h3>
-          <p className="text-sm leading-relaxed text-muted-foreground">
-            <ItemDetails
-              items={agent.skills || []}
-              fallBackIcon={<ScrollText />}
-              empty="No skills assigned."
+            <div
+              className="prose-custom"
+              dangerouslySetInnerHTML={{
+                __html: micromark(skill.content, {
+                  extensions: [gfm()],
+                  htmlExtensions: [gfmHtml()],
+                }),
+              }}
             />
           </p>
         </CardContent>
       </Card>
     </main>
-  )
-}
-
-function ItemDetails({
-  items,
-  fallBackIcon,
-  empty,
-}: {
-  items: SkillResponse[] | ToolResponse[]
-  fallBackIcon: React.ReactNode
-  empty: string
-}) {
-  return (
-    <ItemGroup className="pt-2 pb-4 lg:grid lg:grid-cols-2">
-      {items.map((item) => (
-        <Item key={item.id} variant="muted">
-          <ItemMedia>
-            <IconComponent
-              iconName={item.icon || ""}
-              fallBackIcon={fallBackIcon}
-            />
-          </ItemMedia>
-          <ItemContent>
-            <ItemTitle>{item.name}</ItemTitle>
-            <ItemDescription>{item.description}</ItemDescription>
-          </ItemContent>
-        </Item>
-      ))}
-      {/* fallback */}
-      {items.length === 0 && (
-        <div className="flex items-center gap-3">
-          <div className="rounded-xl border p-2">{fallBackIcon}</div>
-          <p className="text-sm text-muted-foreground">{empty}</p>
-        </div>
-      )}
-    </ItemGroup>
   )
 }

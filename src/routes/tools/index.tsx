@@ -82,25 +82,6 @@ function RouteComponent() {
                 <p className="text-sm text-muted-foreground">
                   {tool.description}
                 </p>
-                <pre>
-                  {tool.inputFormat && (
-                    <>
-                      <strong>Input Format:</strong>
-                      <br />
-                      {tool.inputFormat}
-                      {/* {JSON.parse(tool.inputFormat)} */}
-                    </>
-                  )}
-                  <br />
-                  {tool.outputFormat && (
-                    <>
-                      <strong>Output Format:</strong>
-                      <br />
-                      {tool.outputFormat}
-                      {/* {JSON.parse(tool.outputFormat)} */}
-                    </>
-                  )}
-                </pre>
               </CardContent>
             </Card>
           )

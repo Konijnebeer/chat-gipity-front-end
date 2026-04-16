@@ -1,21 +1,22 @@
 import { cva } from "class-variance-authority"
 import { cn } from "#/lib/utils"
 
-import type { MessageResponse } from "@chat-gipity/schemas"
-import { micromark } from "micromark"
 import { IconComponent } from "#/components/icon"
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from "#/components/ui/tooltip"
-import { ArrowDownLeft, ArrowUpRight, Bot, Sigma, User } from "lucide-react"
 import { Badge } from "#/components/ui/badge"
+import { ArrowDownLeft, ArrowUpRight, Bot, Sigma, User } from "lucide-react"
+import type { MessageResponse } from "@chat-gipity/schemas"
 import type { StreamingBlock } from "../$id"
 import { ToolResult, ToolStart } from "./tools/tool"
+import { micromark } from "micromark"
+import { gfm, gfmHtml } from "micromark-extension-gfm"
 
 const messageVariants = cva(
-  "prose max-w-[70%] rounded-3xl px-4 py-2 text-sm leading-relaxed dark:prose-invert prose-headings:my-1 prose-p:my-1 prose-pre:bg-muted prose-ol:my-0.5 prose-ul:my-0.5 prose-li:my-0.5 [&_blockquote]:border-s-muted [&_ol>li::marker]:font-bold [&_ol>li::marker]:text-primary [&_ul>li::marker]:text-secondary",
+  "prose-custom max-w-[70%] rounded-3xl px-4 py-2 text-sm leading-relaxed",
   {
     variants: {
       role: {
@@ -76,7 +77,11 @@ function Blocks({ blocks }: { blocks: StreamingBlock[] }) {
             key={i}
             dangerouslySetInnerHTML={{
               __html: highlightMentions(
-                micromark(block.content, { allowDangerousHtml: true })
+                micromark(block.content, {
+                  allowDangerousHtml: true,
+                  extensions: [gfm()],
+                  htmlExtensions: [gfmHtml()],
+                })
               ),
             }}
           />
@@ -87,7 +92,11 @@ function Blocks({ blocks }: { blocks: StreamingBlock[] }) {
             key={i}
             dangerouslySetInnerHTML={{
               __html: highlightMentions(
-                micromark(block.content, { allowDangerousHtml: true })
+                micromark(block.content, {
+                  allowDangerousHtml: true,
+                  extensions: [gfm()],
+                  htmlExtensions: [gfmHtml()],
+                })
               ),
             }}
           />
@@ -125,10 +134,6 @@ type MessageProps = {
 } & { message: MessageResponse }
 
 function Message({ message, className }: MessageProps) {
-  const content = highlightMentions(
-    micromark(message.content, { allowDangerousHtml: true })
-  )
-
   return (
     <div className="flex w-full">
       {message.role !== "user" && (
@@ -137,7 +142,8 @@ function Message({ message, className }: MessageProps) {
             <div className="mt-auto mr-2 h-fit rounded-full bg-muted p-1.5">
               {message.sender ? (
                 <IconComponent
-                  className="h-5 w-5"
+                  fallBackIcon={<Bot className="size-5" />}
+                  className="size-5"
                   iconName={message.sender.icon || ""}
                   color={message.sender.color}
                 />
@@ -164,7 +170,11 @@ function Message({ message, className }: MessageProps) {
           <div
             dangerouslySetInnerHTML={{
               __html: highlightMentions(
-                micromark(message.content, { allowDangerousHtml: true })
+                micromark(message.content, {
+                  allowDangerousHtml: true,
+                  extensions: [gfm()],
+                  htmlExtensions: [gfmHtml()],
+                })
               ),
             }}
           />

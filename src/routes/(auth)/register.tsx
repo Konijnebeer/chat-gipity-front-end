@@ -35,7 +35,7 @@ function RouteComponent() {
       navigate({ to: "/login" })
     },
     onError: (err: Error) => {
-      console.log(err, "Registration error")
+      console.error(err, "Registration error")
       toast.error(err.message)
     },
   })

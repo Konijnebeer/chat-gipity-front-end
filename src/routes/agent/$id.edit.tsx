@@ -40,7 +40,7 @@ export const Route = createFileRoute("/agent/$id/edit")({
   }),
   component: RouteComponent,
 })
-  
+
 function RouteComponent() {
   const { id } = Route.useParams()
   const navigate = Route.useNavigate()
@@ -271,7 +271,7 @@ function EditAgentForm({ id, initialAgent }: EditAgentFormProps) {
                   children={(field) => (
                     <field.MultiPickerField
                       items={toolsQuery.data || []}
-                      fallBackIcon={<Wrench />}
+                      fallBackIcon={<Wrench className="size-4" />}
                       label="Tools"
                       placeholder="Search tools"
                       empty="No tools found"
@@ -284,7 +284,7 @@ function EditAgentForm({ id, initialAgent }: EditAgentFormProps) {
                   children={(field) => (
                     <field.MultiPickerField
                       items={skillsQuery.data || []}
-                      fallBackIcon={<ScrollText />}
+                      fallBackIcon={<ScrollText className="size-4" />}
                       label="Skills"
                       placeholder="Search skills"
                       empty="No skills found"

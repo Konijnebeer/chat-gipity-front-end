@@ -140,13 +140,13 @@ function RouteComponent() {
                 children={(field) => (
                   <field.InputField
                     label="Name"
-                    placeholder="Helpful-Tutor"
+                    placeholder="Writing"
                     autocomplete="off"
                   />
                 )}
               />
 
-              <div className="flex gap-4">
+              <div className="flex flex-col gap-4 md:flex-row">
                 <createForm.AppField
                   name="icon"
                   children={(field) => (

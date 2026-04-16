@@ -1,5 +1,5 @@
 import { useMemo } from "react"
-// import { iconNames, type IconName } from "lucide-react/dynamic"
+import { iconNames, type IconName } from "lucide-react/dynamic"
 
 import { useFieldContext } from "@/hooks/context"
 import { Field, FieldError, FieldLabel } from "#/components/ui/field"
@@ -13,10 +13,10 @@ import {
 } from "#/components/ui/combobox"
 import { IconComponent } from "#/components/icon"
 
-// const ICON_OPTIONS = iconNames.map((name) => ({
-//   value: name,
-//   label: name,
-// })) as Array<{ value: IconName; label: string }>
+const ICON_OPTIONS = iconNames.map((name) => ({
+  value: name,
+  label: name,
+})) as Array<{ value: IconName; label: string }>
 
 type IconPickerFieldProps = {
   label: string
@@ -34,11 +34,11 @@ function IconPickerField({
   const selectedIcon = field.state.value
 
   // Keep the same array reference for Combobox items to avoid repeated work.
-  // const options = useMemo(() => ICON_OPTIONS, [])
+  const options = useMemo(() => ICON_OPTIONS, [])
   // Debug options field to reduce reload
-  const options = useMemo(() => {
-    return []
-  }, [])
+  // const options = useMemo(() => {
+  //   return [{ value: "circle", label: "circle" }]
+  // }, [])
 
   return (
     <Field data-invalid={isInvalid}>
