@@ -9,15 +9,9 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as VitasyncRouteImport } from './routes/vitasync'
-import { Route as TestRouteImport } from './routes/test'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as ToolsIndexRouteImport } from './routes/tools/index'
-import { Route as SkillIndexRouteImport } from './routes/skill/index'
 import { Route as ChatIndexRouteImport } from './routes/chat/index'
 import { Route as AgentIndexRouteImport } from './routes/agent/index'
-import { Route as SkillCreateRouteImport } from './routes/skill/create'
-import { Route as SkillIdRouteImport } from './routes/skill/$id'
 import { Route as ChatIdRouteImport } from './routes/chat/$id'
 import { Route as AgentCreateRouteImport } from './routes/agent/create'
 import { Route as AgentIdRouteImport } from './routes/agent/$id'
@@ -25,32 +19,11 @@ import { Route as authRegisterRouteImport } from './routes/(auth)/register'
 import { Route as authLogoutRouteImport } from './routes/(auth)/logout'
 import { Route as authLoginRouteImport } from './routes/(auth)/login'
 import { Route as authAccountRouteImport } from './routes/(auth)/account'
-import { Route as SkillIdEditRouteImport } from './routes/skill/$id.edit'
 import { Route as AgentIdEditRouteImport } from './routes/agent/$id.edit'
 
-const VitasyncRoute = VitasyncRouteImport.update({
-  id: '/vitasync',
-  path: '/vitasync',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const TestRoute = TestRouteImport.update({
-  id: '/test',
-  path: '/test',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ToolsIndexRoute = ToolsIndexRouteImport.update({
-  id: '/tools/',
-  path: '/tools/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SkillIndexRoute = SkillIndexRouteImport.update({
-  id: '/skill/',
-  path: '/skill/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ChatIndexRoute = ChatIndexRouteImport.update({
@@ -61,16 +34,6 @@ const ChatIndexRoute = ChatIndexRouteImport.update({
 const AgentIndexRoute = AgentIndexRouteImport.update({
   id: '/agent/',
   path: '/agent/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SkillCreateRoute = SkillCreateRouteImport.update({
-  id: '/skill/create',
-  path: '/skill/create',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SkillIdRoute = SkillIdRouteImport.update({
-  id: '/skill/$id',
-  path: '/skill/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ChatIdRoute = ChatIdRouteImport.update({
@@ -108,11 +71,6 @@ const authAccountRoute = authAccountRouteImport.update({
   path: '/account',
   getParentRoute: () => rootRouteImport,
 } as any)
-const SkillIdEditRoute = SkillIdEditRouteImport.update({
-  id: '/edit',
-  path: '/edit',
-  getParentRoute: () => SkillIdRoute,
-} as any)
 const AgentIdEditRoute = AgentIdEditRouteImport.update({
   id: '/edit',
   path: '/edit',
@@ -121,8 +79,6 @@ const AgentIdEditRoute = AgentIdEditRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/test': typeof TestRoute
-  '/vitasync': typeof VitasyncRoute
   '/account': typeof authAccountRoute
   '/login': typeof authLoginRoute
   '/logout': typeof authLogoutRoute
@@ -130,19 +86,12 @@ export interface FileRoutesByFullPath {
   '/agent/$id': typeof AgentIdRouteWithChildren
   '/agent/create': typeof AgentCreateRoute
   '/chat/$id': typeof ChatIdRoute
-  '/skill/$id': typeof SkillIdRouteWithChildren
-  '/skill/create': typeof SkillCreateRoute
   '/agent/': typeof AgentIndexRoute
   '/chat/': typeof ChatIndexRoute
-  '/skill/': typeof SkillIndexRoute
-  '/tools/': typeof ToolsIndexRoute
   '/agent/$id/edit': typeof AgentIdEditRoute
-  '/skill/$id/edit': typeof SkillIdEditRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/test': typeof TestRoute
-  '/vitasync': typeof VitasyncRoute
   '/account': typeof authAccountRoute
   '/login': typeof authLoginRoute
   '/logout': typeof authLogoutRoute
@@ -150,20 +99,13 @@ export interface FileRoutesByTo {
   '/agent/$id': typeof AgentIdRouteWithChildren
   '/agent/create': typeof AgentCreateRoute
   '/chat/$id': typeof ChatIdRoute
-  '/skill/$id': typeof SkillIdRouteWithChildren
-  '/skill/create': typeof SkillCreateRoute
   '/agent': typeof AgentIndexRoute
   '/chat': typeof ChatIndexRoute
-  '/skill': typeof SkillIndexRoute
-  '/tools': typeof ToolsIndexRoute
   '/agent/$id/edit': typeof AgentIdEditRoute
-  '/skill/$id/edit': typeof SkillIdEditRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/test': typeof TestRoute
-  '/vitasync': typeof VitasyncRoute
   '/(auth)/account': typeof authAccountRoute
   '/(auth)/login': typeof authLoginRoute
   '/(auth)/logout': typeof authLogoutRoute
@@ -171,21 +113,14 @@ export interface FileRoutesById {
   '/agent/$id': typeof AgentIdRouteWithChildren
   '/agent/create': typeof AgentCreateRoute
   '/chat/$id': typeof ChatIdRoute
-  '/skill/$id': typeof SkillIdRouteWithChildren
-  '/skill/create': typeof SkillCreateRoute
   '/agent/': typeof AgentIndexRoute
   '/chat/': typeof ChatIndexRoute
-  '/skill/': typeof SkillIndexRoute
-  '/tools/': typeof ToolsIndexRoute
   '/agent/$id/edit': typeof AgentIdEditRoute
-  '/skill/$id/edit': typeof SkillIdEditRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/test'
-    | '/vitasync'
     | '/account'
     | '/login'
     | '/logout'
@@ -193,19 +128,12 @@ export interface FileRouteTypes {
     | '/agent/$id'
     | '/agent/create'
     | '/chat/$id'
-    | '/skill/$id'
-    | '/skill/create'
     | '/agent/'
     | '/chat/'
-    | '/skill/'
-    | '/tools/'
     | '/agent/$id/edit'
-    | '/skill/$id/edit'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/test'
-    | '/vitasync'
     | '/account'
     | '/login'
     | '/logout'
@@ -213,19 +141,12 @@ export interface FileRouteTypes {
     | '/agent/$id'
     | '/agent/create'
     | '/chat/$id'
-    | '/skill/$id'
-    | '/skill/create'
     | '/agent'
     | '/chat'
-    | '/skill'
-    | '/tools'
     | '/agent/$id/edit'
-    | '/skill/$id/edit'
   id:
     | '__root__'
     | '/'
-    | '/test'
-    | '/vitasync'
     | '/(auth)/account'
     | '/(auth)/login'
     | '/(auth)/logout'
@@ -233,20 +154,13 @@ export interface FileRouteTypes {
     | '/agent/$id'
     | '/agent/create'
     | '/chat/$id'
-    | '/skill/$id'
-    | '/skill/create'
     | '/agent/'
     | '/chat/'
-    | '/skill/'
-    | '/tools/'
     | '/agent/$id/edit'
-    | '/skill/$id/edit'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  TestRoute: typeof TestRoute
-  VitasyncRoute: typeof VitasyncRoute
   authAccountRoute: typeof authAccountRoute
   authLoginRoute: typeof authLoginRoute
   authLogoutRoute: typeof authLogoutRoute
@@ -254,49 +168,17 @@ export interface RootRouteChildren {
   AgentIdRoute: typeof AgentIdRouteWithChildren
   AgentCreateRoute: typeof AgentCreateRoute
   ChatIdRoute: typeof ChatIdRoute
-  SkillIdRoute: typeof SkillIdRouteWithChildren
-  SkillCreateRoute: typeof SkillCreateRoute
   AgentIndexRoute: typeof AgentIndexRoute
   ChatIndexRoute: typeof ChatIndexRoute
-  SkillIndexRoute: typeof SkillIndexRoute
-  ToolsIndexRoute: typeof ToolsIndexRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/vitasync': {
-      id: '/vitasync'
-      path: '/vitasync'
-      fullPath: '/vitasync'
-      preLoaderRoute: typeof VitasyncRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/test': {
-      id: '/test'
-      path: '/test'
-      fullPath: '/test'
-      preLoaderRoute: typeof TestRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/': {
       id: '/'
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/tools/': {
-      id: '/tools/'
-      path: '/tools'
-      fullPath: '/tools/'
-      preLoaderRoute: typeof ToolsIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/skill/': {
-      id: '/skill/'
-      path: '/skill'
-      fullPath: '/skill/'
-      preLoaderRoute: typeof SkillIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/chat/': {
@@ -311,20 +193,6 @@ declare module '@tanstack/react-router' {
       path: '/agent'
       fullPath: '/agent/'
       preLoaderRoute: typeof AgentIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/skill/create': {
-      id: '/skill/create'
-      path: '/skill/create'
-      fullPath: '/skill/create'
-      preLoaderRoute: typeof SkillCreateRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/skill/$id': {
-      id: '/skill/$id'
-      path: '/skill/$id'
-      fullPath: '/skill/$id'
-      preLoaderRoute: typeof SkillIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/chat/$id': {
@@ -376,13 +244,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof authAccountRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/skill/$id/edit': {
-      id: '/skill/$id/edit'
-      path: '/edit'
-      fullPath: '/skill/$id/edit'
-      preLoaderRoute: typeof SkillIdEditRouteImport
-      parentRoute: typeof SkillIdRoute
-    }
     '/agent/$id/edit': {
       id: '/agent/$id/edit'
       path: '/edit'
@@ -404,21 +265,8 @@ const AgentIdRouteChildren: AgentIdRouteChildren = {
 const AgentIdRouteWithChildren =
   AgentIdRoute._addFileChildren(AgentIdRouteChildren)
 
-interface SkillIdRouteChildren {
-  SkillIdEditRoute: typeof SkillIdEditRoute
-}
-
-const SkillIdRouteChildren: SkillIdRouteChildren = {
-  SkillIdEditRoute: SkillIdEditRoute,
-}
-
-const SkillIdRouteWithChildren =
-  SkillIdRoute._addFileChildren(SkillIdRouteChildren)
-
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  TestRoute: TestRoute,
-  VitasyncRoute: VitasyncRoute,
   authAccountRoute: authAccountRoute,
   authLoginRoute: authLoginRoute,
   authLogoutRoute: authLogoutRoute,
@@ -426,12 +274,8 @@ const rootRouteChildren: RootRouteChildren = {
   AgentIdRoute: AgentIdRouteWithChildren,
   AgentCreateRoute: AgentCreateRoute,
   ChatIdRoute: ChatIdRoute,
-  SkillIdRoute: SkillIdRouteWithChildren,
-  SkillCreateRoute: SkillCreateRoute,
   AgentIndexRoute: AgentIndexRoute,
   ChatIndexRoute: ChatIndexRoute,
-  SkillIndexRoute: SkillIndexRoute,
-  ToolsIndexRoute: ToolsIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

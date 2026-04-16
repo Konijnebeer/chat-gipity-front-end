@@ -12,11 +12,7 @@ import { Spinner } from "#/components/ui/spinner"
 import {
   ArrowBigRight,
   AtSign,
-  Hash,
   Plus,
-  ScrollText,
-  Slash,
-  Wrench,
   X,
 } from "lucide-react"
 import {
@@ -24,7 +20,6 @@ import {
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
-  DropdownMenuSeparator,
   // DropdownMenuShortcut, TODO: add shortcut support
   DropdownMenuSub,
   DropdownMenuSubContent,
@@ -33,8 +28,6 @@ import {
 } from "../ui/dropdown-menu"
 import { IconComponent } from "../icon"
 import { useAgentsQuery } from "#/hooks/query/agents.query"
-import { useToolsQuery } from "#/hooks/query/tools.query"
-import { useSkillsQuery } from "#/hooks/query/skills.query"
 
 type PromptInputField = {
   label?: string
@@ -61,10 +54,6 @@ function PromptInputField({
   // Data for the dropdown
   const agentsQuery = useAgentsQuery()
   const agents = agentsQuery.data ?? []
-  const toolsQuery = useToolsQuery()
-  const tools = toolsQuery.data ?? []
-  const skillsQuery = useSkillsQuery()
-  const skills = skillsQuery.data ?? []
 
   const recalculateRows = useCallback(() => {
     const textarea = textareaRef.current
@@ -126,70 +115,6 @@ function PromptInputField({
                     color={agent.color}
                   />
                   <span>{agent.name}</span>
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuSubContent>
-          </DropdownMenuSub>
-        </DropdownMenuGroup>
-
-        <DropdownMenuSeparator />
-
-        {/* Skills */}
-        <DropdownMenuGroup>
-          <DropdownMenuSub>
-            <DropdownMenuSubTrigger>
-              <Hash className="mr-2 h-4 w-4" />
-              <span>Skills</span>
-            </DropdownMenuSubTrigger>
-            <DropdownMenuSubContent
-              alignOffset={-20}
-              sideOffset={8}
-              className="max-h-48 min-w-40 overflow-y-auto"
-            >
-              {skills.map((skill) => (
-                <DropdownMenuItem
-                  key={skill.id}
-                  onSelect={() => {
-                    field.setValue(`${field.state.value} #${skill.name} `)
-                  }}
-                >
-                  <IconComponent
-                    iconName={skill.icon || ""}
-                    fallBackIcon={<Wrench />}
-                  />
-                  <span>{skill.name}</span>
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuSubContent>
-          </DropdownMenuSub>
-        </DropdownMenuGroup>
-
-        <DropdownMenuSeparator />
-
-        {/* Tools */}
-        <DropdownMenuGroup>
-          <DropdownMenuSub>
-            <DropdownMenuSubTrigger>
-              <Slash className="mr-2 h-4 w-4" />
-              <span>Tools</span>
-            </DropdownMenuSubTrigger>
-            <DropdownMenuSubContent
-              alignOffset={-80}
-              sideOffset={8}
-              className="max-h-48 min-w-40 overflow-y-auto"
-            >
-              {tools.map((tool) => (
-                <DropdownMenuItem
-                  key={tool.id}
-                  onSelect={() => {
-                    field.setValue(`${field.state.value} /${tool.slug} `)
-                  }}
-                >
-                  <IconComponent
-                    iconName={tool.icon || ""}
-                    fallBackIcon={<ScrollText />}
-                  />
-                  <span>{tool.name}</span>
                 </DropdownMenuItem>
               ))}
             </DropdownMenuSubContent>

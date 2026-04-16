@@ -26,9 +26,6 @@ import { toast } from "sonner"
 import { Spinner } from "#/components/ui/spinner"
 import { useAgentDetails } from "./-query/detail.query"
 import { Skeleton } from "#/components/ui/skeleton"
-import { useToolsQuery } from "#/hooks/query/tools.query"
-import { ScrollText, Wrench } from "lucide-react"
-import { useSkillsQuery } from "#/hooks/query/skills.query"
 
 export const Route = createFileRoute("/agent/$id/edit")({
   head: () => ({
@@ -80,9 +77,6 @@ function EditAgentForm({ id, initialAgent }: EditAgentFormProps) {
   const router = useRouter()
   const canGoBack = useCanGoBack()
   const queryClient = useQueryClient()
-
-  const toolsQuery = useToolsQuery()
-  const skillsQuery = useSkillsQuery()
 
   const deleteAgentMutation = useMutation({
     mutationFn: async () => {
@@ -145,9 +139,6 @@ function EditAgentForm({ id, initialAgent }: EditAgentFormProps) {
       color: initialAgent.color,
       description: initialAgent.description,
       personality: initialAgent.personality,
-      // Map tools to be just an array of tool ids for the form
-      tools: initialAgent.tools?.map((tool) => tool.id) ?? [],
-      skills: initialAgent.skills?.map((skill) => skill.id) ?? [],
     },
     validators: {
       // @ts-expect-error
@@ -264,34 +255,6 @@ function EditAgentForm({ id, initialAgent }: EditAgentFormProps) {
                   />
                 )}
               />
-
-              <div className="gap-4 lg:flex">
-                <editForm.AppField
-                  name="tools"
-                  children={(field) => (
-                    <field.MultiPickerField
-                      items={toolsQuery.data || []}
-                      fallBackIcon={<Wrench className="size-4" />}
-                      label="Tools"
-                      placeholder="Search tools"
-                      empty="No tools found"
-                    />
-                  )}
-                />
-
-                <editForm.AppField
-                  name="skills"
-                  children={(field) => (
-                    <field.MultiPickerField
-                      items={skillsQuery.data || []}
-                      fallBackIcon={<ScrollText className="size-4" />}
-                      label="Skills"
-                      placeholder="Search skills"
-                      empty="No skills found"
-                    />
-                  )}
-                />
-              </div>
             </FieldGroup>
           </form>
         </CardContent>

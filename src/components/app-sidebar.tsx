@@ -52,6 +52,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       {isLoggedIn && (
         <>
           <SidebarContent>
+            {/* @ts-ignore */}
             <NavMain agents={agents} />
             <NavChats chats={chats} />
           </SidebarContent>

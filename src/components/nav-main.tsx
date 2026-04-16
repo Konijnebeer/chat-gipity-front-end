@@ -4,8 +4,6 @@ import {
   SidebarGroup,
   SidebarGroupLabel,
   SidebarMenu,
-  SidebarMenuAction,
-  SidebarMenuBadge,
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarMenuSub,
@@ -26,8 +24,6 @@ import {
   ChevronUp,
   PackagePlus,
   Pencil,
-  ScrollText,
-  Wrench,
 } from "lucide-react"
 import type { Agent } from "@chat-gipity/schemas"
 import { IconComponent } from "./icon"
@@ -109,33 +105,6 @@ export function NavMain({ agents }: { agents: AgentWithId[] }) {
             </CollapsibleContent>
           </SidebarMenuItem>
         </Collapsible>
-        <SidebarMenuItem>
-          <SidebarMenuButton asChild tooltip="Tools">
-            <Link to="/skill">
-              <ScrollText />
-              Skills
-              <SidebarMenuBadge>New</SidebarMenuBadge>
-            </Link>
-          </SidebarMenuButton>
-          <SidebarMenuSub>
-            <SidebarMenuSubItem>
-              <SidebarMenuSubButton asChild>
-                <Link to="/skill/create">
-                  <PackagePlus />
-                  New Skill
-                </Link>
-              </SidebarMenuSubButton>
-            </SidebarMenuSubItem>
-          </SidebarMenuSub>
-        </SidebarMenuItem>
-        <SidebarMenuItem>
-          <SidebarMenuButton asChild tooltip="Tools">
-            <Link to="/tools">
-              <Wrench />
-              Tools
-            </Link>
-          </SidebarMenuButton>
-        </SidebarMenuItem>
       </SidebarGroup>
     </>
   )
