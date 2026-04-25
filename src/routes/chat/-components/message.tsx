@@ -179,25 +179,35 @@ function Message({ message, className }: MessageProps) {
             }}
           />
         )}
-        {message.inputTokens !== undefined &&
-          message.outputTokens !== undefined && (
-            <div className="mt-2 flex gap-1">
+        {message.sender ||
+        message.inputTokens !== undefined ||
+        message.outputTokens !== undefined ? (
+          <div className="mt-2 flex gap-1">
+            {message.sender && (
+              <Badge variant="outline" className="font-bold">
+                {message.sender.name}
+              </Badge>
+            )}
+            {message.inputTokens !== undefined && (
               <Badge className="bg-muted text-xs text-foreground">
                 <ArrowDownLeft className="h-3 w-3" />
                 {message.inputTokens}
               </Badge>
+            )}
+            {message.outputTokens !== undefined && (
               <Badge className="bg-muted text-xs text-foreground">
                 <ArrowUpRight className="h-3 w-3" />
                 {message.outputTokens}
               </Badge>
-              {message.totalTokens !== undefined && (
-                <Badge className="bg-muted text-xs text-foreground">
-                  <Sigma className="h-3 w-3" />
-                  {message.totalTokens}
-                </Badge>
-              )}
-            </div>
-          )}
+            )}
+            {message.totalTokens !== undefined && (
+              <Badge className="bg-muted text-xs text-foreground">
+                <Sigma className="h-3 w-3" />
+                {message.totalTokens}
+              </Badge>
+            )}
+          </div>
+        ) : null}
       </div>
 
       {message.role === "user" && (

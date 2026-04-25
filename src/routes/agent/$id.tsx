@@ -17,16 +17,7 @@ import {
 } from "@tanstack/react-router"
 import { useEffect } from "react"
 import { useAgentDetails } from "./-query/detail.query"
-import type { SkillResponse, ToolResponse } from "@chat-gipity/schemas"
-import {
-  Item,
-  ItemContent,
-  ItemDescription,
-  ItemGroup,
-  ItemMedia,
-  ItemTitle,
-} from "#/components/ui/item"
-import { ScrollText, Wrench, Bot } from "lucide-react"
+import { Bot } from "lucide-react"
 
 export const Route = createFileRoute("/agent/$id")({
   head: () => ({
@@ -210,65 +201,6 @@ function RouteComponent() {
           </p>
         </CardContent>
       </Card>
-      <Card>
-        <CardHeader>
-          <CardTitle>
-            <h2>Tools & Skills</h2>
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <h3 className="text-lg font-semibold">Tools</h3>
-          <ItemDetails
-            items={agent.tools || []}
-            fallBackIcon={<Wrench />}
-            empty="No tools assigned."
-          />
-          <h3 className="text-lg font-semibold">Skills</h3>
-          <p className="text-sm leading-relaxed text-muted-foreground">
-            <ItemDetails
-              items={agent.skills || []}
-              fallBackIcon={<ScrollText />}
-              empty="No skills assigned."
-            />
-          </p>
-        </CardContent>
-      </Card>
     </main>
-  )
-}
-
-function ItemDetails({
-  items,
-  fallBackIcon,
-  empty,
-}: {
-  items: SkillResponse[] | ToolResponse[]
-  fallBackIcon: React.ReactNode
-  empty: string
-}) {
-  return (
-    <ItemGroup className="pt-2 pb-4 lg:grid lg:grid-cols-2">
-      {items.map((item) => (
-        <Item key={item.id} variant="muted">
-          <ItemMedia>
-            <IconComponent
-              iconName={item.icon || ""}
-              fallBackIcon={fallBackIcon}
-            />
-          </ItemMedia>
-          <ItemContent>
-            <ItemTitle>{item.name}</ItemTitle>
-            <ItemDescription>{item.description}</ItemDescription>
-          </ItemContent>
-        </Item>
-      ))}
-      {/* fallback */}
-      {items.length === 0 && (
-        <div className="flex items-center gap-3">
-          <div className="rounded-xl border p-2">{fallBackIcon}</div>
-          <p className="text-sm text-muted-foreground">{empty}</p>
-        </div>
-      )}
-    </ItemGroup>
   )
 }
