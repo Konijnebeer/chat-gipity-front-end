@@ -62,7 +62,13 @@ function StreamingMessage({ blocks }: { blocks: StreamingBlock[] }) {
   )
 }
 
-function Blocks({ blocks }: { blocks: StreamingBlock[] }) {
+function Blocks({
+  blocks,
+  color,
+}: {
+  blocks: StreamingBlock[]
+  color?: string
+}) {
   const completedToolCallIds = new Set(
     blocks
       .filter((block) => block.type === "tool_result")
@@ -134,6 +140,8 @@ type MessageProps = {
 } & { message: MessageResponse }
 
 function Message({ message, className }: MessageProps) {
+  const color = message.sender?.color || null
+  console.log(color)
   return (
     <div className="flex w-full">
       {message.role !== "user" && (
@@ -162,9 +170,15 @@ function Message({ message, className }: MessageProps) {
         </Tooltip>
       )}
 
-      <div className={cn(messageVariants({ role: message.role }), className)}>
+      <div
+        style={color ? { border: `2px solid ${color}` } : undefined}
+        className={cn(messageVariants({ role: message.role }), className)}
+      >
         {message.blocks && message.blocks.length > 0 ? (
-          <Blocks blocks={message.blocks as StreamingBlock[]} />
+          <Blocks
+            blocks={message.blocks as StreamingBlock[]}
+            color={message.sender?.color}
+          />
         ) : (
           // Fallback for user messages or messages without blocks
           <div

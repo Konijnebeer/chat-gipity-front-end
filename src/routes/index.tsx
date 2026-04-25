@@ -89,7 +89,7 @@ function RouteComponent() {
             name="content"
             children={(field) => (
               <field.PromptInputField
-                label="Enter your message"
+                label="Start your conversation to see different perspectives!"
                 placeholder="Type your message here..."
                 maxLength={
                   MessageRequestSchema.shape.content.maxLength ?? undefined
@@ -98,6 +98,11 @@ function RouteComponent() {
               />
             )}
           />
+          <p className="mx-auto max-w-xl text-center text-sm italic">
+            An AI can be wrong, and have biases. Always verify information from
+            multiple sources. The conversations are simulations and not
+            representative of real people.
+          </p>
         </FieldGroup>
       </form>
     </main>

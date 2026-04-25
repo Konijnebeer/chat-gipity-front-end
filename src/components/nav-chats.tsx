@@ -144,7 +144,11 @@ export function NavChats({ chats }: { chats: ChatResponse[] }) {
 
   return (
     <SidebarGroup>
-      <SidebarGroupLabel>Chats</SidebarGroupLabel>
+      <SidebarGroupLabel asChild>
+        <Link to="/chat" className="underline-offset-2 hover:underline">
+          Chats
+        </Link>
+      </SidebarGroupLabel>
       <SidebarMenu>
         {chats.map((item) => (
           <SidebarMenuItem key={item.id}>
