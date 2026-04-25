@@ -134,29 +134,29 @@ type MessageProps = {
 } & { message: MessageResponse }
 
 function Message({ message, className }: MessageProps) {
+  const sender = message.sender
+
   return (
     <div className="flex w-full">
       {message.role !== "user" && (
         <Tooltip>
           <TooltipTrigger asChild>
             <div className="mt-auto mr-2 h-fit rounded-full bg-muted p-1.5">
-              {message.sender ? (
+              {sender ? (
                 <IconComponent
                   fallBackIcon={<Bot className="size-5" />}
                   className="size-5"
-                  iconName={message.sender.icon || ""}
-                  color={message.sender.color}
+                  iconName={sender.icon || ""}
+                  color={sender.color}
                 />
               ) : (
                 <Bot className="h-5 w-5 text-muted-foreground" />
               )}
             </div>
           </TooltipTrigger>
-          {message.sender && (
+          {sender && (
             <TooltipContent>
-              <p className="text-sm font-medium">
-                {message.sender.name || "Unknown"}
-              </p>
+              <p className="text-sm font-medium">{sender.name || "Unknown"}</p>
             </TooltipContent>
           )}
         </Tooltip>
@@ -179,25 +179,35 @@ function Message({ message, className }: MessageProps) {
             }}
           />
         )}
-        {message.inputTokens !== undefined &&
-          message.outputTokens !== undefined && (
-            <div className="mt-2 flex gap-1">
+        {sender ||
+        message.inputTokens !== undefined ||
+        message.outputTokens !== undefined ? (
+          <div className="mt-2 flex gap-1">
+            {sender && (
+              <Badge variant="outline" className="font-bold">
+                {sender.name}
+              </Badge>
+            )}
+            {message.inputTokens !== undefined && (
               <Badge className="bg-muted text-xs text-foreground">
                 <ArrowDownLeft className="h-3 w-3" />
                 {message.inputTokens}
               </Badge>
+            )}
+            {message.outputTokens !== undefined && (
               <Badge className="bg-muted text-xs text-foreground">
                 <ArrowUpRight className="h-3 w-3" />
                 {message.outputTokens}
               </Badge>
-              {message.totalTokens !== undefined && (
-                <Badge className="bg-muted text-xs text-foreground">
-                  <Sigma className="h-3 w-3" />
-                  {message.totalTokens}
-                </Badge>
-              )}
-            </div>
-          )}
+            )}
+            {message.totalTokens !== undefined && (
+              <Badge className="bg-muted text-xs text-foreground">
+                <Sigma className="h-3 w-3" />
+                {message.totalTokens}
+              </Badge>
+            )}
+          </div>
+        ) : null}
       </div>
 
       {message.role === "user" && (

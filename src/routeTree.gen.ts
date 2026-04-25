@@ -9,8 +9,6 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as VitasyncRouteImport } from './routes/vitasync'
-import { Route as TestRouteImport } from './routes/test'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ToolsIndexRouteImport } from './routes/tools/index'
 import { Route as SkillIndexRouteImport } from './routes/skill/index'
@@ -28,16 +26,6 @@ import { Route as authAccountRouteImport } from './routes/(auth)/account'
 import { Route as SkillIdEditRouteImport } from './routes/skill/$id.edit'
 import { Route as AgentIdEditRouteImport } from './routes/agent/$id.edit'
 
-const VitasyncRoute = VitasyncRouteImport.update({
-  id: '/vitasync',
-  path: '/vitasync',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const TestRoute = TestRouteImport.update({
-  id: '/test',
-  path: '/test',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -121,8 +109,6 @@ const AgentIdEditRoute = AgentIdEditRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/test': typeof TestRoute
-  '/vitasync': typeof VitasyncRoute
   '/account': typeof authAccountRoute
   '/login': typeof authLoginRoute
   '/logout': typeof authLogoutRoute
@@ -141,8 +127,6 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/test': typeof TestRoute
-  '/vitasync': typeof VitasyncRoute
   '/account': typeof authAccountRoute
   '/login': typeof authLoginRoute
   '/logout': typeof authLogoutRoute
@@ -162,8 +146,6 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/test': typeof TestRoute
-  '/vitasync': typeof VitasyncRoute
   '/(auth)/account': typeof authAccountRoute
   '/(auth)/login': typeof authLoginRoute
   '/(auth)/logout': typeof authLogoutRoute
@@ -184,8 +166,6 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/test'
-    | '/vitasync'
     | '/account'
     | '/login'
     | '/logout'
@@ -204,8 +184,6 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/test'
-    | '/vitasync'
     | '/account'
     | '/login'
     | '/logout'
@@ -224,8 +202,6 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
-    | '/test'
-    | '/vitasync'
     | '/(auth)/account'
     | '/(auth)/login'
     | '/(auth)/logout'
@@ -245,8 +221,6 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  TestRoute: typeof TestRoute
-  VitasyncRoute: typeof VitasyncRoute
   authAccountRoute: typeof authAccountRoute
   authLoginRoute: typeof authLoginRoute
   authLogoutRoute: typeof authLogoutRoute
@@ -264,20 +238,6 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/vitasync': {
-      id: '/vitasync'
-      path: '/vitasync'
-      fullPath: '/vitasync'
-      preLoaderRoute: typeof VitasyncRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/test': {
-      id: '/test'
-      path: '/test'
-      fullPath: '/test'
-      preLoaderRoute: typeof TestRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/': {
       id: '/'
       path: '/'
@@ -417,8 +377,6 @@ const SkillIdRouteWithChildren =
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  TestRoute: TestRoute,
-  VitasyncRoute: VitasyncRoute,
   authAccountRoute: authAccountRoute,
   authLoginRoute: authLoginRoute,
   authLogoutRoute: authLogoutRoute,

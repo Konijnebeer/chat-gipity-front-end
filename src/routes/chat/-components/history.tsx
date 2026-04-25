@@ -33,9 +33,9 @@ function ChatHistory({ messages, streamingBlocks }: ChatHistoryProps) {
 function ChatHistorySkeleton() {
   return (
     <div className="mx-auto flex w-full max-w-4xl flex-col gap-4 py-2">
-      <Skeleton className="h-10 w-3/4 ml-auto rounded-3xl rounded-br-md" />
-      <Skeleton className="h-10 w-1/2 mr-auto rounded-3xl rounded-bl-md" />
-      <Skeleton className="h-10 w-2/3 ml-auto rounded-3xl rounded-br-md" />
+      <Skeleton className="ml-auto h-10 w-3/4 rounded-3xl rounded-br-md" />
+      <Skeleton className="mr-auto h-10 w-1/2 rounded-3xl rounded-bl-md" />
+      <Skeleton className="ml-auto h-10 w-2/3 rounded-3xl rounded-br-md" />
     </div>
   )
 }

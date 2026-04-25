@@ -29,7 +29,14 @@ import {
   ToolResult as DictionaryResult,
 } from "./dictionary"
 import { ToolStart as SkillStart, ToolResult as SkillResult } from "./skill"
-import { CreateAgentStart, CreateAgentResult } from "./agent"
+import {
+  CreateAgentStart,
+  CreateAgentResult,
+  DeleteAgentResult,
+  DeleteAgentStart,
+} from "./agent"
+import { ReadMemoryResult, SaveMemoryResult, SaveMemoryStart } from "./memory"
+import { ReadChatHistoryResult, ReadChatHistoryStart } from "./chat-history"
 
 export type ToolStart = {
   toolName: string
@@ -65,6 +72,26 @@ function ToolStart({ toolName, input, callId }: ToolStart) {
       return (
         <CreateAgentStart input={input as { name: string }} callId={callId} />
       )
+    case "delete_agent":
+      return (
+        <DeleteAgentStart input={input as { name: string }} callId={callId} />
+      )
+    case "save_memory":
+      return (
+        <SaveMemoryStart input={input as { name: string }} callId={callId} />
+      )
+    case "read_memory":
+      return (
+        <SaveMemoryStart input={input as { name: string }} callId={callId} />
+      )
+    case "search_chat_history":
+      return (
+        <ReadChatHistoryStart
+          input={input as { query: string }}
+          callId={callId}
+        />
+      )
+
     case "get_skill_info":
       return <SkillStart input={input as { name: string }} callId={callId} />
     default: {
@@ -116,6 +143,43 @@ function ToolResult({ toolName, output, callId }: ToolResult) {
       return (
         <CreateAgentResult
           output={output as { name: string }}
+          callId={callId}
+        />
+      )
+    case "delete_agent":
+      return (
+        <DeleteAgentResult
+          output={output as { message: string } | { error: string }}
+          callId={callId}
+        />
+      )
+    case "save_memory":
+      return (
+        <SaveMemoryResult
+          output={output as { name: string; text: string }}
+          callId={callId}
+        />
+      )
+    case "read_memory":
+      return (
+        <ReadMemoryResult
+          output={output as { name: string; results: string }}
+          callId={callId}
+        />
+      )
+    case "search_chat_history":
+      return (
+        <ReadChatHistoryResult
+          output={
+            output as
+              | {
+                  query: string
+                  results: string
+                  sources: string[]
+                  includeUserMessages: boolean
+                }
+              | { error: string }
+          }
           callId={callId}
         />
       )

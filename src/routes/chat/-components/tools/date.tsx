@@ -1,4 +1,4 @@
-import { CalendarClock, ScrollText } from "lucide-react"
+import { CalendarClock } from "lucide-react"
 import { ToolError, ToolLoading } from "./tool"
 
 function ToolStart({ input, callId }: { input: unknown; callId: string }) {
