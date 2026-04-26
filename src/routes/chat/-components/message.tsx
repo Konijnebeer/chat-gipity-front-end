@@ -139,7 +139,7 @@ type MessageProps = {
 
 function Message({ message, className }: MessageProps) {
   const color = message.sender?.color || null
-  console.log(color)
+
   return (
     <div className="flex w-full">
       {message.role !== "user" && (
