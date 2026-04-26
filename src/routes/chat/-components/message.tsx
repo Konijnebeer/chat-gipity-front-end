@@ -64,10 +64,8 @@ function StreamingMessage({ blocks }: { blocks: StreamingBlock[] }) {
 
 function Blocks({
   blocks,
-  color,
 }: {
   blocks: StreamingBlock[]
-  color?: string
 }) {
   const completedToolCallIds = new Set(
     blocks
@@ -177,7 +175,6 @@ function Message({ message, className }: MessageProps) {
         {message.blocks && message.blocks.length > 0 ? (
           <Blocks
             blocks={message.blocks as StreamingBlock[]}
-            color={message.sender?.color}
           />
         ) : (
           // Fallback for user messages or messages without blocks
