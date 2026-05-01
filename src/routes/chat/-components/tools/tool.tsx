@@ -32,11 +32,15 @@ import { ToolStart as SkillStart, ToolResult as SkillResult } from "./skill"
 import {
   CreateAgentStart,
   CreateAgentResult,
-  DeleteAgentResult,
   DeleteAgentStart,
+  DeleteAgentResult,
 } from "./agent"
 import { ReadMemoryResult, SaveMemoryResult, SaveMemoryStart } from "./memory"
 import { ReadChatHistoryResult, ReadChatHistoryStart } from "./chat-history"
+import {
+  ToolStart as AskSubAgentStart,
+  ToolResult as AskSubAgentResult,
+} from "./sub-agent"
 
 export type ToolStart = {
   toolName: string
@@ -90,6 +94,10 @@ function ToolStart({ toolName, input, callId }: ToolStart) {
           input={input as { query: string }}
           callId={callId}
         />
+      )
+    case "ask_sub_agent":
+      return (
+        <AskSubAgentStart input={input as { name: string }} callId={callId} />
       )
 
     case "get_skill_info":
@@ -183,6 +191,16 @@ function ToolResult({ toolName, output, callId }: ToolResult) {
           callId={callId}
         />
       )
+    case "ask_sub_agent":
+      return (
+        <AskSubAgentResult
+          output={
+            output as { name: string; answer: string } | { error: string }
+          }
+          callId={callId}
+        />
+      )
+
     case "get_skill_info":
       return (
         <SkillResult

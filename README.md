@@ -1,204 +1,67 @@
-Welcome to your new TanStack Start app! 
+# Chat Gipity
 
-# Getting Started
+Multi agent chat application for Programming 8, period 4, CMGT, 2025-2026
 
-To run this application:
+## Install instructions
 
-```bash
-pnpm install
-pnpm dev
-```
+1. Clone the repository
+2. Run `pnpm install` in both the `front-end` and `back-end` directories
+3. Copy the `.env.example` in the `back-end` directory to `.env` and fill in the required environment variables (e.g. OpenAI API key)
+4. Start the back-end server by running `pnpm dev` in the `back-end` directory
+5. Start the front-end development server by running `pnpm dev` in the `front-end` directory
+6. Seed the database with initial agents by sending a post request to `http://localhost:8000/api/agent/seed`
+7. Open your browser and navigate to `http://localhost:3000` to see the application in action
 
-# Building For Production
+## Usage
 
-To build this application for production:
+- Start a chat from the index ping agents to make them interact with each other, you can later add more.
+- Go to the agents tab to see all agents, click on an agent to see its details and edit its name, description, and personality. You can also Create new agents manually or with the agent maker who will flesh out the agent based on a prompt you give it.
+- Go to the chats tab to see all chats, click on a chat to see the messages and the agents involved in the chat in the header.
+- See all tools available on the Tools page and add them to agents, on the agent edit page.
+- See all skills and add new Skill on the skills tab, you can then add these skills to agents on the agent edit page as well.
 
-```bash
-pnpm build
-```
+## Features
 
-## Testing
+### Persistent Memory
+Agents store and retrieve memories using a **FAISS vector store**. When an agent saves a memory, it is embedded and indexed so that relevant information can be retrieved later through semantic similarity search, meaning the agent finds the *most relevant* memories for the current context, not just exact matches.
 
-This project uses [Vitest](https://vitest.dev/) for testing. You can run the tests with:
+### Chat History via RAG
+Agents can search through previous conversations using **Retrieval-Augmented Generation (RAG)**, also backed by a FAISS store. Rather than loading the full chat history into context.
 
-```bash
-pnpm test
-```
+### Skills
+Agents can be extended with **skills** - markdown-defined capabilities that provide extra instructions and examples, allowing agents to be tailored for specific tasks or domains.
 
-## Styling
+## Tools
 
-This project uses [Tailwind CSS](https://tailwindcss.com/) for styling.
+### General Information
 
-### Removing Tailwind CSS
+| Tool | Description |
+|------|-------------|
+| `search` | Search for information using the Brave AI search engine. |
+| `search_chat_history` | Query the agent's chat history via RAG to retrieve relevant past messages. |
+| `get_definition` | Look up word definitions, including pronunciation, meanings, and examples. |
+| `get_current_date_time` | Get the current date and time. |
 
-If you prefer not to use Tailwind CSS:
+### Agent Management
 
-1. Remove the demo pages in `src/routes/demo/`
-2. Replace the Tailwind import in `src/styles.css` with your own styles
-3. Remove `tailwindcss()` from the plugins array in `vite.config.ts`
-4. Uninstall the packages: `pnpm add @tailwindcss/vite tailwindcss --dev`
+| Tool | Description |
+|------|-------------|
+| `create_agent` | Create a new agent with specified properties. |
+| `delete_agent` | Remove an existing agent. |
+| `save_memory` | Store information in the agent's FAISS memory store. |
+| `read_memory` | Retrieve relevant information from the agent's FAISS memory store. |
 
-## Linting & Formatting
+### Skills
 
+| Tool | Description |
+|------|-------------|
+| `get_skill_info` | Retrieve skill documentation when an agent has skills configured. |
 
-This project uses [eslint](https://eslint.org/) and [prettier](https://prettier.io/) for linting and formatting. Eslint is configured using [tanstack/eslint-config](https://tanstack.com/config/latest/docs/eslint). The following scripts are available:
+### Extras & Fun
 
-```bash
-pnpm lint
-pnpm format
-pnpm check
-```
-
-
-
-## Routing
-
-This project uses [TanStack Router](https://tanstack.com/router) with file-based routing. Routes are managed as files in `src/routes`.
-
-### Adding A Route
-
-To add a new route to your application just add a new file in the `./src/routes` directory.
-
-TanStack will automatically generate the content of the route file for you.
-
-Now that you have two routes you can use a `Link` component to navigate between them.
-
-### Adding Links
-
-To use SPA (Single Page Application) navigation you will need to import the `Link` component from `@tanstack/react-router`.
-
-```tsx
-import { Link } from "@tanstack/react-router";
-```
-
-Then anywhere in your JSX you can use it like so:
-
-```tsx
-<Link to="/about">About</Link>
-```
-
-This will create a link that will navigate to the `/about` route.
-
-More information on the `Link` component can be found in the [Link documentation](https://tanstack.com/router/v1/docs/framework/react/api/router/linkComponent).
-
-### Using A Layout
-
-In the File Based Routing setup the layout is located in `src/routes/__root.tsx`. Anything you add to the root route will appear in all the routes. The route content will appear in the JSX where you render `{children}` in the `shellComponent`.
-
-Here is an example layout that includes a header:
-
-```tsx
-import { HeadContent, Scripts, createRootRoute } from '@tanstack/react-router'
-
-export const Route = createRootRoute({
-  head: () => ({
-    meta: [
-      { charSet: 'utf-8' },
-      { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-      { title: 'My App' },
-    ],
-  }),
-  shellComponent: ({ children }) => (
-    <html lang="en">
-      <head>
-        <HeadContent />
-      </head>
-      <body>
-        <header>
-          <nav>
-            <Link to="/">Home</Link>
-            <Link to="/about">About</Link>
-          </nav>
-        </header>
-        {children}
-        <Scripts />
-      </body>
-    </html>
-  ),
-})
-```
-
-More information on layouts can be found in the [Layouts documentation](https://tanstack.com/router/latest/docs/framework/react/guide/routing-concepts#layouts).
-
-## Server Functions
-
-TanStack Start provides server functions that allow you to write server-side code that seamlessly integrates with your client components.
-
-```tsx
-import { createServerFn } from '@tanstack/react-start'
-
-const getServerTime = createServerFn({
-  method: 'GET',
-}).handler(async () => {
-  return new Date().toISOString()
-})
-
-// Use in a component
-function MyComponent() {
-  const [time, setTime] = useState('')
-  
-  useEffect(() => {
-    getServerTime().then(setTime)
-  }, [])
-  
-  return <div>Server time: {time}</div>
-}
-```
-
-## API Routes
-
-You can create API routes by using the `server` property in your route definitions:
-
-```tsx
-import { createFileRoute } from '@tanstack/react-router'
-import { json } from '@tanstack/react-start'
-
-export const Route = createFileRoute('/api/hello')({
-  server: {
-    handlers: {
-      GET: () => json({ message: 'Hello, World!' }),
-    },
-  },
-})
-```
-
-## Data Fetching
-
-There are multiple ways to fetch data in your application. You can use TanStack Query to fetch data from a server. But you can also use the `loader` functionality built into TanStack Router to load the data for a route before it's rendered.
-
-For example:
-
-```tsx
-import { createFileRoute } from '@tanstack/react-router'
-
-export const Route = createFileRoute('/people')({
-  loader: async () => {
-    const response = await fetch('https://swapi.dev/api/people')
-    return response.json()
-  },
-  component: PeopleComponent,
-})
-
-function PeopleComponent() {
-  const data = Route.useLoaderData()
-  return (
-    <ul>
-      {data.results.map((person) => (
-        <li key={person.name}>{person.name}</li>
-      ))}
-    </ul>
-  )
-}
-```
-
-Loaders simplify your data fetching logic dramatically. Check out more information in the [Loader documentation](https://tanstack.com/router/latest/docs/framework/react/guide/data-loading#loader-parameters).
-
-# Demo files
-
-Files prefixed with `demo` can be safely deleted. They are there to provide a starting point for you to play around with the features you've installed.
-
-# Learn More
-
-You can learn more about all of the offerings from TanStack in the [TanStack documentation](https://tanstack.com).
-
-For TanStack Start specific documentation, visit [TanStack Start](https://tanstack.com/start).
+| Tool | Description |
+|------|-------------|
+| `get_weather` | Get current weather for a specified city. *(dummy data)* |
+| `get_random_cat_with_description` | Retrieve a random cat photo with a custom description. |
+| `get_apod` | Fetch NASA's Astronomy Picture of the Day. |
+| `search_documentation` | Search through technical documentation. |

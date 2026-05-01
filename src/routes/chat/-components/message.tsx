@@ -135,6 +135,7 @@ type MessageProps = {
 
 function Message({ message, className }: MessageProps) {
   const sender = message.sender
+  const color = message.sender?.color || null
 
   return (
     <div className="flex w-full">
@@ -162,7 +163,10 @@ function Message({ message, className }: MessageProps) {
         </Tooltip>
       )}
 
-      <div className={cn(messageVariants({ role: message.role }), className)}>
+      <div
+        style={color ? { border: `2px solid ${color}` } : undefined}
+        className={cn(messageVariants({ role: message.role }), className)}
+      >
         {message.blocks && message.blocks.length > 0 ? (
           <Blocks blocks={message.blocks as StreamingBlock[]} />
         ) : (

@@ -45,7 +45,7 @@ function ToolResult({
   return (
     <div className="mt-2 mr-2 mb-2 inline-block w-full rounded-md bg-muted/50 px-4 py-1 ring-1">
       <p className="text-md flex">
-        <SearchCheck className="mr-2" />
+        <SearchCheck className="mr-2 size-6 min-w-6" />
         <span className="font-semibold">Searched for: {output.query}</span>
       </p>
       {sources.length > 0 && (

@@ -11,7 +11,7 @@ type ChatHistoryProps = {
 
 function ChatHistory({ messages, streamingBlocks }: ChatHistoryProps) {
   const endRef = useRef<HTMLDivElement | null>(null)
-  // console.log("ChatHistory received messages:", messages)
+  // console.log("ChatHistory received messages:", messages[1]?.blocks)
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ block: "end" })

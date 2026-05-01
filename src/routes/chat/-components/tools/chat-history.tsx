@@ -38,6 +38,9 @@ function ReadChatHistoryResult({
   callId: string
 }) {
   void callId
+  if (typeof output === "string") {
+    return <ToolError toolName="Read Chat History" error={output} />
+  }
   if ("error" in output) {
     return <ToolError toolName="Read Chat History" error={output.error} />
   }
