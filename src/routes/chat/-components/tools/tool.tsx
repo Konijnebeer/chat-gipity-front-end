@@ -18,10 +18,6 @@ import {
   ToolResult as WeatherResult,
 } from "./weather"
 import { ToolStart as CatStart, ToolResult as CatResult } from "./random-cat"
-import {
-  ToolStart as QuestionnaireStart,
-  ToolResult as QuestionnaireResult,
-} from "./questionnaire"
 import { ToolStart as ApodStart, ToolResult as ApodResult } from "./apod"
 import type { ApodQuery, ApodResponse } from "@chat-gipity/schemas"
 import {
@@ -64,8 +60,6 @@ function ToolStart({ toolName, input, callId }: ToolStart) {
       return <WeatherStart input={input as WeatherQuery} callId={callId} />
     case "get_random_cat_with_description":
       return <CatStart input={input as { query: string }} callId={callId} />
-    case "get_questionnaire":
-      return <QuestionnaireStart input={input} callId={callId} />
     case "get_apod":
       return <ApodStart input={input as ApodQuery} callId={callId} />
     case "get_definition":
@@ -136,8 +130,6 @@ function ToolResult({ toolName, output, callId }: ToolResult) {
           callId={callId}
         />
       )
-    case "get_questionnaire":
-      return <QuestionnaireResult output={output} callId={callId} />
     case "get_apod":
       return <ApodResult output={output as ApodResponse} callId={callId} />
     case "get_definition":
@@ -195,7 +187,14 @@ function ToolResult({ toolName, output, callId }: ToolResult) {
       return (
         <AskSubAgentResult
           output={
-            output as { name: string; answer: string } | { error: string }
+            output as
+              | {
+                  name: string
+                  answer: string
+                  totalTokensUsed: number
+                  toolsUsed: string[]
+                }
+              | { error: string }
           }
           callId={callId}
         />
